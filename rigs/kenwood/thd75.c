@@ -33,33 +33,23 @@
 #include "thd7x.h"
 #include "misc.h"
 
-#define THD74_MODES (RIG_MODE_FM|RIG_MODE_DSTAR|RIG_MODE_AM|RIG_MODE_LSB|RIG_MODE_USB|RIG_MODE_CW|RIG_MODE_FMN|RIG_MODE_WFM|RIG_MODE_CWR)
-#define THD74_MODES_TX  (RIG_MODE_FM)
+#define THD75_MODES (RIG_MODE_FM|RIG_MODE_DSTAR|RIG_MODE_AM|RIG_MODE_LSB|RIG_MODE_USB|RIG_MODE_CW|RIG_MODE_FMN|RIG_MODE_WFM|RIG_MODE_CWR)
 
 #define THD75_BAND_A_MODES (RIG_MODE_FM|RIG_MODE_FMN|RIG_MODE_DSTAR)
-#define THD75_BAND_B_MODES (THD74_MODES)
+#define THD75_BAND_B_MODES (THD75_MODES)
 #define THD75_MODES_TX (RIG_MODE_FM|RIG_MODE_FMN|RIG_MODE_DSTAR)
 
-#define THD74_FUNC_ALL (RIG_FUNC_TSQL|   \
-                       RIG_FUNC_TONE)
-
-#define THD75_FUNC_ALL (THD74_FUNC_ALL|RIG_FUNC_VOX)
-
-#define THD74_LEVEL_ALL (RIG_LEVEL_RFPOWER|\
-            RIG_LEVEL_SQL|\
-            RIG_LEVEL_ATT|\
-            RIG_LEVEL_VOXGAIN|\
-                        RIG_LEVEL_VOXDELAY)
+#define THD75_FUNC_ALL (RIG_FUNC_TSQL|RIG_FUNC_TONE|RIG_FUNC_VOX)
 
 #define THD75_LEVEL_ALL (RIG_LEVEL_RFPOWER|RIG_LEVEL_SQL|RIG_LEVEL_AF|\
                          RIG_LEVEL_VOXGAIN|RIG_LEVEL_VOXDELAY|\
                          RIG_LEVEL_RAWSTR)
 
-#define THD74_PARMS (RIG_PARM_TIME)
+#define THD75_PARMS (RIG_PARM_TIME)
 
-#define THD74_VFO_OP (RIG_OP_NONE)
+#define THD75_VFO_OP (RIG_OP_NONE)
 
-#define THD74_VFO (RIG_VFO_A|RIG_VFO_B)
+#define THD75_VFO (RIG_VFO_A|RIG_VFO_B)
 
 #define THD75_CHANNEL_CAPS \
     .freq = 1, \
@@ -77,7 +67,7 @@
     .dcs_sql = 1, \
     .flags = 1
 
-static rmode_t thd74_mode_table[KENWOOD_MODE_TABLE_MAX] =
+static rmode_t thd75_mode_table[KENWOOD_MODE_TABLE_MAX] =
 {
     [0] = RIG_MODE_FM,  /* normal, but narrow compared to broadcast */
     [1] = RIG_MODE_DSTAR,
@@ -91,7 +81,7 @@ static rmode_t thd74_mode_table[KENWOOD_MODE_TABLE_MAX] =
     [9] = RIG_MODE_CWR,
 };
 
-static pbwidth_t thd74_width_table[10] =
+static pbwidth_t thd75_width_table[10] =
 {
     [0] = 14000,
     [1] = 6000,
@@ -105,7 +95,7 @@ static pbwidth_t thd74_width_table[10] =
     [9] = 500,
 };
 
-static rptr_shift_t thd74_rshf_table[3] =
+static rptr_shift_t thd75_rshf_table[3] =
 {
     [0] = RIG_RPT_SHIFT_NONE,
     [1] = RIG_RPT_SHIFT_PLUS,
@@ -134,17 +124,6 @@ static int thd74tuningstep[12] =
     [9] = 30000,
     [10] = 50000,
     [11] = 100000,
-};
-
-static int thd74voxdelay[7] =
-{
-    [0] =  2500,
-    [1] =  5000,
-    [2] =  7500,
-    [3] = 10000,
-    [4] = 15000,
-    [5] = 20000,
-    [6] = 30000
 };
 
 static int thd75voxdelay[7] =
@@ -186,15 +165,15 @@ static tone_t thd74dcs_list[105] =
     0
 };
 
-static struct kenwood_priv_caps thd74_priv_caps =
+static struct kenwood_priv_caps thd75_priv_caps =
 {
     .cmdtrm =  EOM_TH,   /* Command termination character */
-    .mode_table = thd74_mode_table,
+    .mode_table = thd75_mode_table,
 };
 
 
 
-int thd74_open(RIG *rig)
+int thd75_open(RIG *rig)
 {
     //int ret;
     //struct kenwood_priv_data *priv = STATE(rig)->priv;
@@ -209,7 +188,7 @@ int thd74_open(RIG *rig)
 
 
 
-static int thd74_set_vfo(RIG *rig, vfo_t vfo)
+static int thd75_set_vfo(RIG *rig, vfo_t vfo)
 {
     const char *cmd;
 
@@ -236,7 +215,7 @@ static int thd74_set_vfo(RIG *rig, vfo_t vfo)
     return kenwood_simple_transaction(rig, cmd, 4);
 }
 
-static int thd74_get_vfo(RIG *rig, vfo_t *vfo)
+static int thd75_get_vfo(RIG *rig, vfo_t *vfo)
 {
     int retval;
     char c, buf[10];
@@ -279,7 +258,7 @@ static int thd74_get_vfo(RIG *rig, vfo_t *vfo)
     return RIG_OK;
 }
 
-static int thd74_vfoc(RIG *rig, vfo_t vfo, char *vfoc)
+static int thd75_vfoc(RIG *rig, vfo_t vfo, char *vfoc)
 {
     vfo = (vfo == RIG_VFO_CURR) ? STATE(rig)->current_vfo : vfo;
 
@@ -298,13 +277,13 @@ static int thd74_vfoc(RIG *rig, vfo_t vfo, char *vfoc)
     return RIG_OK;
 }
 
-static int thd74_pull_fo(RIG *rig, vfo_t vfo,
+static int thd75_pull_fo(RIG *rig, vfo_t vfo,
                          struct thd7x_fo_record *record)
 {
     char band, cmd[8], reply[THD7X_COMMAND_BUFSIZE];
     int retval;
 
-    retval = thd74_vfoc(rig, vfo, &band);
+    retval = thd75_vfoc(rig, vfo, &band);
 
     if (retval != RIG_OK)
     {
@@ -330,7 +309,7 @@ static int thd74_pull_fo(RIG *rig, vfo_t vfo,
     return RIG_OK;
 }
 
-static int thd74_push_fo(RIG *rig, struct thd7x_fo_record *record)
+static int thd75_push_fo(RIG *rig, struct thd7x_fo_record *record)
 {
     struct thd7x_fo_record acknowledged;
     char command[THD7X_COMMAND_BUFSIZE], reply[THD7X_COMMAND_BUFSIZE];
@@ -362,7 +341,7 @@ static int thd74_push_fo(RIG *rig, struct thd7x_fo_record *record)
     return RIG_OK;
 }
 
-static int thd74_pull_me(RIG *rig, int channel,
+static int thd75_pull_me(RIG *rig, int channel,
                          struct thd7x_me_record *record)
 {
     char command[16], reply[THD7X_COMMAND_BUFSIZE];
@@ -392,7 +371,7 @@ static int thd74_pull_me(RIG *rig, int channel,
     return RIG_OK;
 }
 
-static int thd74_push_me(RIG *rig, const struct thd7x_me_record *record)
+static int thd75_push_me(RIG *rig, const struct thd7x_me_record *record)
 {
     struct thd7x_me_record acknowledged;
     char command[THD7X_COMMAND_BUFSIZE], reply[THD7X_COMMAND_BUFSIZE];
@@ -449,12 +428,12 @@ static int thd75_erase_me(RIG *rig, int channel)
         return -RIG_EPROTO;
     }
 
-    retval = thd74_pull_me(rig, channel, &record);
+    retval = thd75_pull_me(rig, channel, &record);
     return retval == -RIG_ENAVAIL ? RIG_OK :
            (retval == RIG_OK ? -RIG_EPROTO : retval);
 }
 
-static int thd74_record_ts(const struct thd7x_fo_record *record,
+static int thd75_record_ts(const struct thd7x_fo_record *record,
                            shortfreq_t *ts)
 {
     if (record->fine_enabled)
@@ -469,33 +448,27 @@ static int thd74_record_ts(const struct thd7x_fo_record *record,
     return RIG_OK;
 }
 
-static int thd74_get_ts(RIG *rig, vfo_t vfo, shortfreq_t *ts)
+static int thd75_get_ts(RIG *rig, vfo_t vfo, shortfreq_t *ts)
 {
     struct thd7x_fo_record record;
     int retval;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
         return retval;
     }
 
-    return thd74_record_ts(&record, ts);
+    return thd75_record_ts(&record, ts);
 }
 
-static freq_t thd74_round_freq(freq_t freq, shortfreq_t ts)
-{
-    return (freq_t)(round((double)freq / (double)ts) * ts);
-}
-
-static int thd74_set_freq(RIG *rig, vfo_t vfo, freq_t freq)
+static int thd75_set_freq(RIG *rig, vfo_t vfo, freq_t freq)
 {
     struct kenwood_priv_data *priv = STATE(rig)->priv;
-    struct thd7x_fo_record record;
-    shortfreq_t ts;
+    char band, cmd[32];
     int retval;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
@@ -505,29 +478,26 @@ static int thd74_set_freq(RIG *rig, vfo_t vfo, freq_t freq)
         vfo = RIG_VFO_B;
     }
 
-    retval = thd74_pull_fo(rig, vfo, &record);
-
+    retval = thd75_vfoc(rig, vfo, &band);
     if (retval != RIG_OK)
     {
         return retval;
     }
-
-    thd74_record_ts(&record, &ts);
-    freq = thd74_round_freq(freq, ts);
 
     if (freq < 0.0 || freq > 9999999999.0)
     {
         return -RIG_EINVAL;
     }
 
-    record.frequency_hz = (uint64_t)llround(freq);
-    return thd74_push_fo(rig, &record);
+    // Bypass FO record pushing and use direct FQ CAT command
+    SNPRINTF(cmd, sizeof(cmd), "FQ %c,%010" PRIu64, band, (uint64_t)llround(freq));
+    return kenwood_simple_transaction(rig, cmd, strlen(cmd));
 }
 
-static int thd74_get_freq(RIG *rig, vfo_t vfo, freq_t *freq)
+static int thd75_get_freq(RIG *rig, vfo_t vfo, freq_t *freq)
 {
     struct kenwood_priv_data *priv = STATE(rig)->priv;
-    struct thd7x_fo_record record;
+    char band, cmd[16], reply[64];
     int retval;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
@@ -537,19 +507,32 @@ static int thd74_get_freq(RIG *rig, vfo_t vfo, freq_t *freq)
         vfo = RIG_VFO_B;
     }
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_vfoc(rig, vfo, &band);
+    if (retval != RIG_OK)
+    {
+        return retval;
+    }
+
+    // Bypass FO record pulling and use direct FQ CAT query
+    SNPRINTF(cmd, sizeof(cmd), "FQ %c", band);
+    retval = kenwood_transaction(rig, cmd, reply, sizeof(reply));
 
     if (retval != RIG_OK)
     {
         return retval;
     }
 
-    *freq = (freq_t)record.frequency_hz;
+    if (strlen(reply) < 14 || strncmp(reply, "FQ ", 3) != 0 || reply[3] != band || reply[4] != ',') {
+        rig_debug(RIG_DEBUG_ERR, "%s: Unexpected reply '%s'\n", __func__, reply);
+        return -RIG_EPROTO;
+    }
+
+    sscanf(reply + 5, "%" SCNfreq, freq);
     return RIG_OK;
 }
 
 // setting the mode via FO leads to response 'N.' from the handset
-int thd74_set_mode(RIG *rig, vfo_t vfo, rmode_t mode, pbwidth_t width)
+int thd75_set_mode(RIG *rig, vfo_t vfo, rmode_t mode, pbwidth_t width)
 {
     char mdbuf[8], replybuf[8], v;
     int kmode, retval;
@@ -558,7 +541,7 @@ int thd74_set_mode(RIG *rig, vfo_t vfo, rmode_t mode, pbwidth_t width)
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd74_vfoc(rig, vfo, &v);
+    retval = thd75_vfoc(rig, vfo, &v);
 
     if (retval != RIG_OK)
     {
@@ -623,14 +606,14 @@ int thd74_set_mode(RIG *rig, vfo_t vfo, rmode_t mode, pbwidth_t width)
     return RIG_OK;
 }
 
-static int thd74_get_mode(RIG *rig, vfo_t vfo, rmode_t *mode, pbwidth_t *width)
+static int thd75_get_mode(RIG *rig, vfo_t vfo, rmode_t *mode, pbwidth_t *width)
 {
     char band, command[8], reply[8];
     int consumed, parsed_band, parsed_mode, retval;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd74_vfoc(rig, vfo, &band);
+    retval = thd75_vfoc(rig, vfo, &band);
 
     if (retval != RIG_OK)
     {
@@ -650,25 +633,25 @@ static int thd74_get_mode(RIG *rig, vfo_t vfo, rmode_t *mode, pbwidth_t *width)
 
     if (retval != 2 || reply[consumed] != '\0' || parsed_band != band - '0'
             || parsed_mode < 0 || parsed_mode >= 10
-            || thd74_mode_table[parsed_mode] == RIG_MODE_NONE)
+            || thd75_mode_table[parsed_mode] == RIG_MODE_NONE)
     {
         rig_debug(RIG_DEBUG_ERR, "%s: Unexpected reply '%s'\n", __func__, reply);
         return -RIG_EPROTO;
     }
 
-    *mode = thd74_mode_table[parsed_mode];
-    *width = thd74_width_table[parsed_mode];
+    *mode = thd75_mode_table[parsed_mode];
+    *width = thd75_width_table[parsed_mode];
     return RIG_OK;
 }
 
-static int thd74_set_rptr_shft(RIG *rig, vfo_t vfo, rptr_shift_t rptr_shift)
+static int thd75_set_rptr_shft(RIG *rig, vfo_t vfo, rptr_shift_t rptr_shift)
 {
     struct thd7x_fo_record record;
     int retval;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
@@ -687,17 +670,17 @@ static int thd74_set_rptr_shft(RIG *rig, vfo_t vfo, rptr_shift_t rptr_shift)
         return  -RIG_EINVAL;
     }
 
-    return thd74_push_fo(rig, &record);
+    return thd75_push_fo(rig, &record);
 }
 
-static int thd74_get_rptr_shft(RIG *rig, vfo_t vfo, rptr_shift_t *rptr_shift)
+static int thd75_get_rptr_shft(RIG *rig, vfo_t vfo, rptr_shift_t *rptr_shift)
 {
     struct thd7x_fo_record record;
     int retval;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
@@ -705,12 +688,12 @@ static int thd74_get_rptr_shft(RIG *rig, vfo_t vfo, rptr_shift_t *rptr_shift)
     }
 
     *rptr_shift = record.shift == 3 ? RIG_RPT_SHIFT_NONE :
-                  thd74_rshf_table[record.shift];
+                  thd75_rshf_table[record.shift];
     return RIG_OK;
 }
 
 
-static int thd74_set_rptr_offs(RIG *rig, vfo_t vfo, shortfreq_t offs)
+static int thd75_set_rptr_offs(RIG *rig, vfo_t vfo, shortfreq_t offs)
 {
     struct thd7x_fo_record record;
     int retval;
@@ -722,7 +705,7 @@ static int thd74_set_rptr_offs(RIG *rig, vfo_t vfo, shortfreq_t offs)
         return -RIG_EINVAL;
     }
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
@@ -730,17 +713,17 @@ static int thd74_set_rptr_offs(RIG *rig, vfo_t vfo, shortfreq_t offs)
     }
 
     record.offset_hz = (uint64_t)offs;
-    return thd74_push_fo(rig, &record);
+    return thd75_push_fo(rig, &record);
 }
 
-static int thd74_get_rptr_offs(RIG *rig, vfo_t vfo, shortfreq_t *offs)
+static int thd75_get_rptr_offs(RIG *rig, vfo_t vfo, shortfreq_t *offs)
 {
     struct thd7x_fo_record record;
     int retval;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
@@ -756,7 +739,7 @@ static int thd74_get_rptr_offs(RIG *rig, vfo_t vfo, shortfreq_t *offs)
     return RIG_OK;
 }
 
-static int thd74_set_ts(RIG *rig, vfo_t vfo, shortfreq_t ts)
+static int thd75_set_ts(RIG *rig, vfo_t vfo, shortfreq_t ts)
 {
     struct thd7x_fo_record record;
     int retval;
@@ -768,7 +751,7 @@ static int thd74_set_ts(RIG *rig, vfo_t vfo, shortfreq_t ts)
     {
         if (thd74tuningstep_fine[tsinx] == ts)
         {
-            retval = thd74_pull_fo(rig, vfo, &record);
+            retval = thd75_pull_fo(rig, vfo, &record);
 
             if (retval != RIG_OK)
             {
@@ -777,7 +760,7 @@ static int thd74_set_ts(RIG *rig, vfo_t vfo, shortfreq_t ts)
 
             record.fine_enabled = 1;
             record.fine_step = (uint8_t)tsinx;
-            return thd74_push_fo(rig, &record);
+            return thd75_push_fo(rig, &record);
         }
     }
 
@@ -785,7 +768,7 @@ static int thd74_set_ts(RIG *rig, vfo_t vfo, shortfreq_t ts)
     {
         if (thd74tuningstep[tsinx] == ts)
         {
-            retval = thd74_pull_fo(rig, vfo, &record);
+            retval = thd75_pull_fo(rig, vfo, &record);
 
             if (retval != RIG_OK)
             {
@@ -794,14 +777,14 @@ static int thd74_set_ts(RIG *rig, vfo_t vfo, shortfreq_t ts)
 
             record.fine_enabled = 0;
             record.rx_step = (uint8_t)tsinx;
-            return thd74_push_fo(rig, &record);
+            return thd75_push_fo(rig, &record);
         }
     }
 
     return -RIG_EINVAL;
 }
 
-static int thd74_set_ctcss_tone(RIG *rig, vfo_t vfo, tone_t tone)
+static int thd75_set_ctcss_tone(RIG *rig, vfo_t vfo, tone_t tone)
 {
     struct thd7x_fo_record record;
     int retval, tinx;
@@ -826,7 +809,7 @@ static int thd74_set_ctcss_tone(RIG *rig, vfo_t vfo, tone_t tone)
         }
     }
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
@@ -840,17 +823,17 @@ static int thd74_set_ctcss_tone(RIG *rig, vfo_t vfo, tone_t tone)
         record.tone_index = (uint8_t)tinx;
     }
 
-    return thd74_push_fo(rig, &record);
+    return thd75_push_fo(rig, &record);
 }
 
-static int thd74_get_ctcss_tone(RIG *rig, vfo_t vfo, tone_t *tone)
+static int thd75_get_ctcss_tone(RIG *rig, vfo_t vfo, tone_t *tone)
 {
     struct thd7x_fo_record record;
     int retval;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
@@ -869,7 +852,7 @@ static int thd74_get_ctcss_tone(RIG *rig, vfo_t vfo, tone_t *tone)
     return RIG_OK;
 }
 
-static int thd74_set_dcs_code(RIG *rig, vfo_t vfo, tone_t code)
+static int thd75_set_dcs_code(RIG *rig, vfo_t vfo, tone_t code)
 {
     struct thd7x_fo_record record;
     int retval, cinx;
@@ -894,7 +877,7 @@ static int thd74_set_dcs_code(RIG *rig, vfo_t vfo, tone_t code)
         }
     }
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
@@ -908,17 +891,17 @@ static int thd74_set_dcs_code(RIG *rig, vfo_t vfo, tone_t code)
         record.dcs_index = (uint8_t)cinx;
     }
 
-    return thd74_push_fo(rig, &record);
+    return thd75_push_fo(rig, &record);
 }
 
-static int thd74_get_dcs_code(RIG *rig, vfo_t vfo, tone_t *code)
+static int thd75_get_dcs_code(RIG *rig, vfo_t vfo, tone_t *code)
 {
     struct thd7x_fo_record record;
     int retval;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
@@ -937,7 +920,7 @@ static int thd74_get_dcs_code(RIG *rig, vfo_t vfo, tone_t *code)
     return RIG_OK;
 }
 
-static int thd74_set_ctcss_sql(RIG *rig, vfo_t vfo, tone_t tone)
+static int thd75_set_ctcss_sql(RIG *rig, vfo_t vfo, tone_t tone)
 {
     struct thd7x_fo_record record;
     int retval, tinx;
@@ -962,7 +945,7 @@ static int thd74_set_ctcss_sql(RIG *rig, vfo_t vfo, tone_t tone)
         }
     }
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
@@ -976,17 +959,17 @@ static int thd74_set_ctcss_sql(RIG *rig, vfo_t vfo, tone_t tone)
         record.ctcss_index = (uint8_t)tinx;
     }
 
-    return thd74_push_fo(rig, &record);
+    return thd75_push_fo(rig, &record);
 }
 
-static int thd74_get_ctcss_sql(RIG *rig, vfo_t vfo, tone_t *tone)
+static int thd75_get_ctcss_sql(RIG *rig, vfo_t vfo, tone_t *tone)
 {
     struct thd7x_fo_record record;
     int retval;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd74_pull_fo(rig, vfo, &record);
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
@@ -1005,7 +988,7 @@ static int thd74_get_ctcss_sql(RIG *rig, vfo_t vfo, tone_t *tone)
     return RIG_OK;
 }
 
-int thd74_set_ptt(RIG *rig, vfo_t vfo, ptt_t ptt)
+int thd75_set_ptt(RIG *rig, vfo_t vfo, ptt_t ptt)
 {
     const char *ptt_cmd;
 
@@ -1090,192 +1073,6 @@ static int thd75_nearest_vox_delay(int tenths)
     return nearest;
 }
 
-static int thd74_set_level(RIG *rig, vfo_t vfo, setting_t level, value_t val)
-{
-    int retval, lvl;
-    char c, lvlc, cmd[11];
-
-    rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
-    rig_debug(RIG_DEBUG_TRACE, "%s: level: %s\n", __func__, rig_strlevel(level));
-    rig_debug(RIG_DEBUG_TRACE, "%s: value.i: %d\n", __func__, val.i);
-    rig_debug(RIG_DEBUG_TRACE, "%s: value.f: %lf\n", __func__, val.f);
-
-    retval = thd74_vfoc(rig, vfo, &c);
-
-    if (retval != RIG_OK)
-    {
-        return retval;
-    }
-
-    switch (level)
-    {
-    case RIG_LEVEL_RFPOWER:
-        if (val.f <= 0.01) { lvlc = '3'; }
-        else if (val.f <= 0.1) { lvlc = '2'; }
-        else if (val.f <= 0.4) { lvlc = '1'; }
-        else { lvlc = '0'; }
-
-        SNPRINTF(cmd, sizeof(cmd), "PC %c,%c", c, lvlc);
-        return kenwood_simple_transaction(rig, cmd, 6);
-
-    case RIG_LEVEL_VOXGAIN:
-        SNPRINTF(cmd, sizeof(cmd), "VG %d", (int)(val.f * 10.0 - 0.5));
-        return kenwood_simple_transaction(rig, cmd, 4);
-
-    case RIG_LEVEL_VOXDELAY:
-        if (val.i > 20000) { lvl = 6; }
-        else if (val.i > 10000) { lvl = val.i / 10000 + 3; }
-        else { lvl = val.i / 2500; }
-
-        SNPRINTF(cmd, sizeof(cmd), "VD %d", lvl);
-        return kenwood_simple_transaction(rig, cmd, 4);
-
-    case RIG_LEVEL_SQL:
-        if (val.f < 0.0 || val.f > 1.0)
-        {
-            return -RIG_EINVAL;
-        }
-
-        lvl = (int)round(val.f * 5.0);
-        SNPRINTF(cmd, sizeof(cmd), "SQ %c,%d", c, lvl);
-        return kenwood_simple_transaction(rig, cmd, 6);
-
-    case RIG_LEVEL_ATT:
-        SNPRINTF(cmd, sizeof(cmd), "RA %c,%d", c, val.i ? 1 : 0);
-        return kenwood_simple_transaction(rig, cmd, 6);
-
-    default:
-        rig_debug(RIG_DEBUG_ERR, "%s: unsupported level %s\n", __func__,
-                  rig_strlevel(level));
-        return -RIG_EINVAL;
-    }
-
-    return retval;
-}
-
-static int thd74_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
-{
-    int retval, v, l;
-    char c, cmd[10], buf[128];
-
-    rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
-
-    retval = thd74_vfoc(rig, vfo, &c);
-
-    if (retval != RIG_OK)
-    {
-        return retval;
-    }
-
-    switch (level)
-    {
-    case RIG_LEVEL_RFPOWER:
-        SNPRINTF(cmd, sizeof(cmd), "PC %c", c);
-        retval = kenwood_transaction(rig, cmd, buf, sizeof(buf));
-
-        if (retval != RIG_OK)
-        {
-            return retval;
-        }
-
-        retval = sscanf(buf, "PC %d,%d", &v, &l);
-
-        if (retval != 2 || l < 0 || l > 3)
-        {
-            rig_debug(RIG_DEBUG_ERR, "%s: Unexpected reply '%s'\n", __func__, buf);
-            return -RIG_ERJCTED;
-        }
-
-        switch (l)
-        {
-        case 0: val->f = 1.00; break;   /* 5.0 W */
-
-        case 1: val->f = 0.40; break;   /* 2.0 W */
-
-        case 2: val->f = 0.1; break;    /* 500 mW */
-
-        case 3: val->f = 0.01; break;   /* 50 mW */
-        }
-
-        break;
-
-    case RIG_LEVEL_VOXGAIN:
-        SNPRINTF(cmd, sizeof(cmd), "VG");
-        retval = kenwood_transaction(rig, cmd, buf, sizeof(buf));
-
-        if (retval != RIG_OK)
-        {
-            return retval;
-        }
-
-        rig_debug(RIG_DEBUG_TRACE, "%s: VOXGAIN buf:%s\n", __func__, buf);
-        /* FIXME - if VOX is off, what do we return */
-        val->f = (buf[0] - '0') / 9.0;
-        break;
-
-    case RIG_LEVEL_VOXDELAY:
-        SNPRINTF(cmd, sizeof(cmd), "VD");
-        retval = kenwood_transaction(rig, cmd, buf, sizeof(buf));
-
-        if (retval != RIG_OK)
-        {
-            return retval;
-        }
-
-        /* FIXME - if VOX is off, what do we return */
-        rig_debug(RIG_DEBUG_TRACE, "%s: VOXDELAY buf:%s\n", __func__, buf);
-        val->i = thd74voxdelay[buf[0] - '0'];
-        break;
-
-    case RIG_LEVEL_SQL:
-        SNPRINTF(cmd, sizeof(cmd), "SQ %c", c);
-        retval = kenwood_transaction(rig, cmd, buf, sizeof(buf));
-
-        if (retval != RIG_OK)
-        {
-            return retval;
-        }
-
-        retval = sscanf(buf, "SQ %d,%d", &v, &l);
-
-        if (retval != 2 || l < 0 || l >= 6)
-        {
-            rig_debug(RIG_DEBUG_ERR, "%s: Unexpected reply '%s'\n", __func__, buf);
-            return -RIG_ERJCTED;
-        }
-
-        val->f = thd74sqlevel[l];
-        break;
-
-    case RIG_LEVEL_ATT:
-        SNPRINTF(cmd, sizeof(cmd), "RA %c", c);
-        retval = kenwood_transaction(rig, cmd, buf, sizeof(buf));
-
-        if (retval != RIG_OK)
-        {
-            return retval;
-        }
-
-        retval = sscanf(buf, "RA %d,%d", &v, &l);
-
-        if (retval != 2 || l < 0 || l > 1)
-        {
-            rig_debug(RIG_DEBUG_ERR, "%s: Unexpected reply '%s'\n", __func__, buf);
-            return -RIG_ERJCTED;
-        }
-
-        val->i = l;
-        break;
-
-    default:
-        rig_debug(RIG_DEBUG_ERR, "%s: unsupported level %s\n", __func__,
-                  rig_strlevel(level));
-        return -RIG_EINVAL;
-    }
-
-    return RIG_OK;
-}
-
 static int thd75_set_level(RIG *rig, vfo_t vfo, setting_t level, value_t val)
 {
     int retval, lvl;
@@ -1286,7 +1083,7 @@ static int thd75_set_level(RIG *rig, vfo_t vfo, setting_t level, value_t val)
     rig_debug(RIG_DEBUG_TRACE, "%s: value.i: %d\n", __func__, val.i);
     rig_debug(RIG_DEBUG_TRACE, "%s: value.f: %lf\n", __func__, val.f);
 
-    retval = thd74_vfoc(rig, vfo, &c);
+    retval = thd75_vfoc(rig, vfo, &c);
 
     if (retval != RIG_OK)
     {
@@ -1367,7 +1164,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd74_vfoc(rig, vfo, &c);
+    retval = thd75_vfoc(rig, vfo, &c);
 
     if (retval != RIG_OK)
     {
@@ -1537,7 +1334,7 @@ static int thd75_get_dcd(RIG *rig, vfo_t vfo, dcd_t *dcd)
     char band, command[8], reply[16];
     int retval, busy;
 
-    retval = thd74_vfoc(rig, vfo, &band);
+    retval = thd75_vfoc(rig, vfo, &band);
 
     if (retval != RIG_OK)
     {
@@ -1564,73 +1361,6 @@ static int thd75_get_dcd(RIG *rig, vfo_t vfo, dcd_t *dcd)
     return RIG_OK;
 }
 
-static int thd74_set_func(RIG *rig, vfo_t vfo, setting_t func, int status)
-{
-    struct thd7x_fo_record record;
-    int retval;
-
-    rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
-
-    if (status != 0 && status != 1)
-    {
-        return -RIG_EINVAL;
-    }
-
-    retval = thd74_pull_fo(rig, vfo, &record);
-
-    if (retval != RIG_OK)
-    {
-        return retval;
-    }
-
-    switch (func)
-    {
-    case RIG_FUNC_TONE:
-        record.tone_enabled = (uint8_t)status;
-        break;
-
-    case RIG_FUNC_TSQL:
-        record.ctcss_enabled = (uint8_t)status;
-        break;
-
-    default:
-        return -RIG_EINVAL;
-    }
-
-    return thd74_push_fo(rig, &record);
-}
-
-static int thd74_get_func(RIG *rig, vfo_t vfo, setting_t func, int *status)
-{
-    struct thd7x_fo_record record;
-    int retval;
-
-    rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
-
-    retval = thd74_pull_fo(rig, vfo, &record);
-
-    if (retval != RIG_OK)
-    {
-        return retval;
-    }
-
-    switch (func)
-    {
-    case RIG_FUNC_TONE:
-        *status = record.tone_enabled;
-        break;
-
-    case RIG_FUNC_TSQL:
-        *status = record.ctcss_enabled;
-        break;
-
-    default:
-        return -RIG_EINVAL;
-    }
-
-    return RIG_OK;
-}
-
 static int thd75_set_func(RIG *rig, vfo_t vfo, setting_t func, int status)
 {
     char command[5], reply[16];
@@ -1638,7 +1368,7 @@ static int thd75_set_func(RIG *rig, vfo_t vfo, setting_t func, int status)
 
     if (func != RIG_FUNC_VOX)
     {
-        return thd74_set_func(rig, vfo, func, status);
+        return thd75_set_func(rig, vfo, func, status);
     }
 
     if (status != 0 && status != 1)
@@ -1664,7 +1394,7 @@ static int thd75_get_func(RIG *rig, vfo_t vfo, setting_t func, int *status)
 
     if (func != RIG_FUNC_VOX)
     {
-        return thd74_get_func(rig, vfo, func, status);
+        return thd75_get_func(rig, vfo, func, status);
     }
 
     retval = kenwood_transaction(rig, "VX", reply, sizeof(reply));
@@ -1683,48 +1413,6 @@ static int thd75_get_func(RIG *rig, vfo_t vfo, setting_t func, int *status)
     }
 
     *status = value;
-    return RIG_OK;
-}
-
-static int thd74_set_parm(RIG *rig, setting_t parm, value_t val)
-{
-    rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
-
-    switch (parm)
-    {
-    case RIG_PARM_TIME: // FIXME check val, send formatted via RT
-    default:
-        return -RIG_EINVAL;
-    }
-
-    return RIG_OK;
-}
-
-static int thd74_get_parm(RIG *rig, setting_t parm, value_t *val)
-{
-    int retval, hh, mm, ss;
-    char buf[48];
-
-    rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
-
-    switch (parm)
-    {
-    case RIG_PARM_TIME:
-        retval = kenwood_transaction(rig, "RT", buf, sizeof(buf));
-
-        if (retval != RIG_OK)
-        {
-            return retval;
-        }
-
-        sscanf(buf + 11, "%2d%2d%2d", &hh, &mm, &ss);
-        val->i = ss + 60 * (mm + 60 * hh);
-        break;
-
-    default:
-        return -RIG_EINVAL;
-    }
-
     return RIG_OK;
 }
 
@@ -1886,7 +1574,7 @@ static int thd75_get_clock(RIG *rig, int *year, int *month, int *day,
     return RIG_OK;
 }
 
-static int thd74_set_mem(RIG *rig, vfo_t vfo, int ch)
+static int thd75_set_mem(RIG *rig, vfo_t vfo, int ch)
 {
     int retval;
     char c, cmd[10];
@@ -1898,7 +1586,7 @@ static int thd74_set_mem(RIG *rig, vfo_t vfo, int ch)
         return -RIG_EINVAL;
     }
 
-    retval = thd74_vfoc(rig, vfo, &c);
+    retval = thd75_vfoc(rig, vfo, &c);
 
     if (retval != RIG_OK)
     {
@@ -1909,14 +1597,14 @@ static int thd74_set_mem(RIG *rig, vfo_t vfo, int ch)
     return kenwood_simple_transaction(rig, cmd, 8);
 }
 
-static int thd74_get_mem(RIG *rig, vfo_t vfo, int *ch)
+static int thd75_get_mem(RIG *rig, vfo_t vfo, int *ch)
 {
     int consumed, parsed_band, retval;
     char c, cmd[10], buf[10];
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd74_vfoc(rig, vfo, &c);
+    retval = thd75_vfoc(rig, vfo, &c);
 
     if (retval != RIG_OK)
     {
@@ -1954,7 +1642,7 @@ static int thd75_channel_mode_to_me(rmode_t mode,
 
     for (int i = 0; i < 10; i++)
     {
-        if (thd74_mode_table[i] == mode)
+        if (thd75_mode_table[i] == mode)
         {
             record->mode = (uint8_t)i;
             return RIG_OK;
@@ -2144,7 +1832,7 @@ static int thd75_channel_tones_to_me(const channel_t *chan,
     return RIG_OK;
 }
 
-static int thd74_set_channel(RIG *rig, vfo_t vfo, const channel_t *chan)
+static int thd75_set_channel(RIG *rig, vfo_t vfo, const channel_t *chan)
 {
     struct thd7x_me_record record;
     int is_new_record = 0, retval;
@@ -2178,7 +1866,7 @@ static int thd74_set_channel(RIG *rig, vfo_t vfo, const channel_t *chan)
         return -RIG_EINVAL;
     }
 
-    retval = thd74_pull_me(rig, chan->channel_num, &record);
+    retval = thd75_pull_me(rig, chan->channel_num, &record);
 
     if (retval == -RIG_ENAVAIL)
     {
@@ -2201,7 +1889,7 @@ static int thd74_set_channel(RIG *rig, vfo_t vfo, const channel_t *chan)
     retval = thd75_channel_mode_to_me(chan->mode, &record);
 
     if (retval == RIG_OK && chan->width != 0
-            && chan->width != thd74_width_table[record.mode])
+            && chan->width != thd75_width_table[record.mode])
     {
         retval = -RIG_EINVAL;
     }
@@ -2227,10 +1915,10 @@ static int thd74_set_channel(RIG *rig, vfo_t vfo, const channel_t *chan)
         return retval;
     }
 
-    return thd74_push_me(rig, &record);
+    return thd75_push_me(rig, &record);
 }
 
-static void thd74_channel_tones(channel_t *chan, uint8_t tone_enabled,
+static void thd75_channel_tones(channel_t *chan, uint8_t tone_enabled,
                                 uint8_t ctcss_enabled, uint8_t dcs_enabled,
                                 uint8_t cross_enabled, uint8_t tone_index,
                                 uint8_t ctcss_index, uint8_t dcs_index,
@@ -2285,21 +1973,21 @@ static void thd74_channel_tones(channel_t *chan, uint8_t tone_enabled,
     }
 }
 
-static int thd74_channel_mode(channel_t *chan, uint8_t mode)
+static int thd75_channel_mode(channel_t *chan, uint8_t mode)
 {
-    if (mode >= 10 || thd74_mode_table[mode] == RIG_MODE_NONE)
+    if (mode >= 10 || thd75_mode_table[mode] == RIG_MODE_NONE)
     {
         return -RIG_EPROTO;
     }
 
-    chan->mode = thd74_mode_table[mode];
-    chan->width = thd74_width_table[mode];
+    chan->mode = thd75_mode_table[mode];
+    chan->width = thd75_width_table[mode];
     chan->tx_mode = chan->mode;
     chan->tx_width = chan->width;
     return RIG_OK;
 }
 
-static int thd74_channel_from_fo(const struct thd7x_fo_record *record,
+static int thd75_channel_from_fo(const struct thd7x_fo_record *record,
                                  channel_t *chan)
 {
     int retval;
@@ -2309,7 +1997,7 @@ static int thd74_channel_from_fo(const struct thd7x_fo_record *record,
         return -RIG_EPROTO;
     }
 
-    retval = thd74_channel_mode(chan, record->mode);
+    retval = thd75_channel_mode(chan, record->mode);
 
     if (retval != RIG_OK)
     {
@@ -2320,7 +2008,7 @@ static int thd74_channel_from_fo(const struct thd7x_fo_record *record,
     chan->tx_freq = 0;
     chan->split = RIG_SPLIT_OFF;
     chan->rptr_shift = record->shift == 3 ? RIG_RPT_SHIFT_NONE :
-                       thd74_rshf_table[record->shift];
+                       thd75_rshf_table[record->shift];
     chan->rptr_offs = (shortfreq_t)record->offset_hz;
     chan->tuning_step = record->fine_enabled ?
                         thd74tuningstep_fine[record->fine_step] :
@@ -2328,14 +2016,14 @@ static int thd74_channel_from_fo(const struct thd7x_fo_record *record,
     chan->funcs = record->reverse_enabled ? RIG_FUNC_REV : 0;
     chan->flags = RIG_CHFLAG_NONE;
     chan->channel_desc[0] = '\0';
-    thd74_channel_tones(chan, record->tone_enabled, record->ctcss_enabled,
+    thd75_channel_tones(chan, record->tone_enabled, record->ctcss_enabled,
                         record->dcs_enabled, record->cross_enabled,
                         record->tone_index, record->ctcss_index,
                         record->dcs_index, record->cross_selector);
     return RIG_OK;
 }
 
-static int thd74_channel_from_me(const struct thd7x_me_record *record,
+static int thd75_channel_from_me(const struct thd7x_me_record *record,
                                  channel_t *chan)
 {
     int retval;
@@ -2345,7 +2033,7 @@ static int thd74_channel_from_me(const struct thd7x_me_record *record,
         return -RIG_EPROTO;
     }
 
-    retval = thd74_channel_mode(chan, record->mode);
+    retval = thd75_channel_mode(chan, record->mode);
 
     if (retval != RIG_OK)
     {
@@ -2373,18 +2061,18 @@ static int thd74_channel_from_me(const struct thd7x_me_record *record,
         chan->split = RIG_SPLIT_OFF;
         chan->tx_freq = 0;
         chan->rptr_shift = record->shift == 3 ? RIG_RPT_SHIFT_NONE :
-                           thd74_rshf_table[record->shift];
+                           thd75_rshf_table[record->shift];
         chan->rptr_offs = (shortfreq_t)record->offset_hz;
     }
 
-    thd74_channel_tones(chan, record->tone_enabled, record->ctcss_enabled,
+    thd75_channel_tones(chan, record->tone_enabled, record->ctcss_enabled,
                         record->dcs_enabled, record->cross_enabled,
                         record->tone_index, record->ctcss_index,
                         record->dcs_index, record->cross_selector);
     return RIG_OK;
 }
 
-static int thd74_get_channel(RIG *rig, vfo_t vfo, channel_t *chan,
+static int thd75_get_channel(RIG *rig, vfo_t vfo, channel_t *chan,
                              int read_only)
 {
     struct thd7x_fo_record fo_record;
@@ -2396,24 +2084,24 @@ static int thd74_get_channel(RIG *rig, vfo_t vfo, channel_t *chan,
 
     if (chan->vfo == RIG_VFO_MEM)   /* memory channel */
     {
-        retval = thd74_pull_me(rig, chan->channel_num, &me_record);
+        retval = thd75_pull_me(rig, chan->channel_num, &me_record);
 
-        return retval == RIG_OK ? thd74_channel_from_me(&me_record, chan) : retval;
+        return retval == RIG_OK ? thd75_channel_from_me(&me_record, chan) : retval;
     }
     else                    /* current channel */
     {
-        retval = thd74_pull_fo(rig, chan->vfo, &fo_record);
+        retval = thd75_pull_fo(rig, chan->vfo, &fo_record);
 
         if (retval != RIG_OK)
         {
             return retval;
         }
 
-        return thd74_channel_from_fo(&fo_record, chan);
+        return thd75_channel_from_fo(&fo_record, chan);
     }
 }
 
-int thd74_set_split_vfo(RIG *rig, vfo_t vfo, split_t split, vfo_t txvfo)
+int thd75_set_split_vfo(RIG *rig, vfo_t vfo, split_t split, vfo_t txvfo)
 {
     struct kenwood_priv_data *priv = STATE(rig)->priv;
 
@@ -2429,7 +2117,7 @@ int thd74_set_split_vfo(RIG *rig, vfo_t vfo, split_t split, vfo_t txvfo)
     return RIG_OK;
 }
 
-int thd74_get_split_vfo(RIG *rig, vfo_t vfo, split_t *split, vfo_t *txvfo)
+int thd75_get_split_vfo(RIG *rig, vfo_t vfo, split_t *split, vfo_t *txvfo)
 {
     struct kenwood_priv_data *priv = STATE(rig)->priv;
 
@@ -2451,67 +2139,31 @@ int thd74_get_split_vfo(RIG *rig, vfo_t vfo, split_t *split, vfo_t *txvfo)
 if priv->split is RIG_SPLIT_ON set *tx_freq to freq of VFOA and return RIG_OK
 otherwise return -RIG_EPROTO
 */
-int thd74_get_split_freq(RIG *rig, vfo_t vfo, freq_t *tx_freq)
+int thd75_get_split_freq(RIG *rig, vfo_t vfo, freq_t *tx_freq)
 {
     struct kenwood_priv_data *priv = STATE(rig)->priv;
-    struct thd7x_fo_record record;
-    int retval;
-
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
     if (priv->split == RIG_SPLIT_ON)
     {
-        vfo = RIG_VFO_A;
+        return thd75_get_freq(rig, RIG_VFO_A, tx_freq);
     }
-    else
-    {
-        return -RIG_EINVAL;
-    }
-
-    retval = thd74_pull_fo(rig, vfo, &record);
-
-    if (retval != RIG_OK)
-    {
-        return retval;
-    }
-
-    *tx_freq = (freq_t)record.frequency_hz;
-    return RIG_OK;
+    return -RIG_EINVAL;
 }
 
 /*
 if priv->split is RIG_SPLIT_ON set freq of VFOA to txfreq and return RIG_OK
 otherwise return -RIG_EPROTO
 */
-int thd74_set_split_freq(RIG *rig, vfo_t vfo, freq_t tx_freq)
+int thd75_set_split_freq(RIG *rig, vfo_t vfo, freq_t tx_freq)
 {
     struct kenwood_priv_data *priv = STATE(rig)->priv;
-
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
     if (priv->split == RIG_SPLIT_ON)
     {
-        struct thd7x_fo_record record;
-        shortfreq_t ts;
-        int retval = thd74_pull_fo(rig, RIG_VFO_A, &record);
-
-        if (retval != RIG_OK)
-        {
-            return retval;
-        }
-
-        thd74_record_ts(&record, &ts);
-        tx_freq = thd74_round_freq(tx_freq, ts);
-
-        if (tx_freq < 0.0 || tx_freq > 9999999999.0)
-        {
-            return -RIG_EINVAL;
-        }
-
-        record.frequency_hz = (uint64_t)llround(tx_freq);
-        return thd74_push_fo(rig, &record);
+        return thd75_set_freq(rig, RIG_VFO_A, tx_freq);
     }
-
     return -RIG_EPROTO;
 }
 
@@ -2521,7 +2173,7 @@ int thd74_set_split_freq(RIG *rig, vfo_t vfo, freq_t tx_freq)
 #define BLOCK_COUNT 256
 #define CHAN_PER_BLOCK 4
 
-static int thd74_get_block(RIG *rig, int block_num, char *block)
+static int thd75_get_block(RIG *rig, int block_num, char *block)
 {
     hamlib_port_t *rp = RIGPORT(rig);
     char cmd[CMD_SZ] = "R\0\0\0\0";
@@ -2582,7 +2234,7 @@ static int thd74_get_block(RIG *rig, int block_num, char *block)
 }
 
 #ifdef XXREMOVEDXX
-int thd74_get_chan_all_cb(RIG *rig, chan_cb_t chan_cb, rig_ptr_t arg)
+int thd75_get_chan_all_cb(RIG *rig, chan_cb_t chan_cb, rig_ptr_t arg)
 {
     int i, j, ret;
     hamlib_port_t *rp = RIGPORT(rig);
@@ -2638,7 +2290,7 @@ int thd74_get_chan_all_cb(RIG *rig, chan_cb_t chan_cb, rig_ptr_t arg)
     for (i = 0; i < BLOCK_COUNT; i++)
     {
 
-        ret = thd74_get_block(rig, i, block);
+        ret = thd75_get_block(rig, i, block);
 
         if (ret != RIG_OK)
         {
@@ -2717,136 +2369,182 @@ int thd74_get_chan_all_cb(RIG *rig, chan_cb_t chan_cb, rig_ptr_t arg)
 #endif
 #endif  /* none working stuff */
 /*
- * th-d74 rig capabilities.
+ * th-d75 rig capabilities.
  */
-struct rig_caps thd74_caps =
+struct rig_caps thd75_caps =
 {
-    RIG_MODEL(RIG_MODEL_THD74),
-    .model_name = "TH-D74",
-    .mfg_name =  "Kenwood",
-    .version =  BACKEND_VER ".3",
-    .copyright =  "LGPL",
-    .status =  RIG_STATUS_STABLE,
-    .rig_type =  RIG_TYPE_HANDHELD | RIG_FLAG_APRS | RIG_FLAG_TNC | RIG_FLAG_DXCLUSTER,
-    .ptt_type =  RIG_PTT_RIG,
-    .dcd_type =  RIG_DCD_RIG,
-    .port_type =  RIG_PORT_SERIAL,
-    .serial_rate_min =  9600,
-    .serial_rate_max =  9600,
-    .serial_data_bits =  8,
-    .serial_stop_bits =  1,
-    .serial_parity =  RIG_PARITY_NONE,
-    .serial_handshake =  RIG_HANDSHAKE_XONXOFF,
-    .write_delay =  0,
-    .post_write_delay =  0,
-    .timeout =  500,
-    .retry =  3,
+    RIG_MODEL(RIG_MODEL_THD75),
+    .model_name = "TH-D75",
+    .mfg_name = "Kenwood",
+    .version = BACKEND_VER ".3",
+    .copyright = "LGPL",
+    .status = RIG_STATUS_BETA,
+    .rig_type = RIG_TYPE_HANDHELD | RIG_FLAG_APRS | RIG_FLAG_TNC | RIG_FLAG_DXCLUSTER,
+    .ptt_type = RIG_PTT_RIG,
+    .dcd_type = RIG_DCD_RIG,
+    .port_type = RIG_PORT_SERIAL,
+    .serial_rate_min = 9600,
+    .serial_rate_max = 9600,
+    .serial_data_bits = 8,
+    .serial_stop_bits = 1,
+    .serial_parity = RIG_PARITY_NONE,
+    .serial_handshake = RIG_HANDSHAKE_NONE,
+    .write_delay = 0,
+    .post_write_delay = 0,
+    .timeout = 500,
+    .retry = 3,
 
-    .has_get_func =  THD74_FUNC_ALL,
-    .has_set_func =  THD74_FUNC_ALL,
-    .has_get_level =  THD74_LEVEL_ALL,
-    .has_set_level =  RIG_LEVEL_SET(THD74_LEVEL_ALL),
-    .has_get_parm =  THD74_PARMS,
-    .has_set_parm =  THD74_PARMS,
+    .has_get_func = THD75_FUNC_ALL,
+    .has_set_func = THD75_FUNC_ALL,
+    .has_get_level = THD75_LEVEL_ALL,
+    .has_set_level = RIG_LEVEL_SET(THD75_LEVEL_ALL),
+    .has_get_parm = RIG_PARM_NONE,
+    .has_set_parm = RIG_PARM_NONE,
     .level_gran =
     {
-#include "level_gran_kenwood.h"
+        [LVL_SQL] = {
+            .min = { .f = 0.0f },
+            .max = { .f = 1.0f },
+            .step = { .f = 0.2f },
+        },
+        [LVL_RFPOWER] = {
+            .min = { .f = 0.01f },
+            .max = { .f = 1.0f },
+            .step = { .f = 0.0f },
+        },
+        [LVL_AF] = {
+            .min = { .f = 0.0f },
+            .max = { .f = 1.0f },
+            .step = { .f = 1.0f / 200.0f },
+        },
+        [LVL_VOXGAIN] = {
+            .min = { .f = 0.0f },
+            .max = { .f = 1.0f },
+            .step = { .f = 1.0f / 9.0f },
+        },
+        [LVL_VOXDELAY] = {
+            .min = { .i = 3 }, .max = { .i = 30 }, .step = { .i = 1 },
+        },
+        [LVL_RAWSTR] = {
+            .min = { .i = 0 }, .max = { .i = 5 }, .step = { .i = 1 },
+        },
     },
-    .parm_gran =  {
-        [PARM_TIME] = {.min = {.i = 0}, .max = {.i = 86399}, .step = {.i = 1}},
-    },
-
-
-
-    .ctcss_list =  kenwood38_ctcss_list,
-    .dcs_list =  NULL,
-    .preamp =   { RIG_DBLST_END, },
-    .attenuator =   { RIG_DBLST_END, },
-    .max_rit =  Hz(0),
-    .max_xit =  Hz(0),
-    .max_ifshift =  Hz(0),
-    .vfo_ops =  THD74_VFO_OP,
-    .targetable_vfo =  RIG_TARGETABLE_FREQ,
-    .transceive =  RIG_TRN_RIG,
-    .bank_qty =   0,
-    .chan_desc_sz =  6, /* TBC */
-    .chan_list =  {
-        {  0,  999, RIG_MTYPE_MEM, {TH_CHANNEL_CAPS}},   /* TBC MEM */
+    .ctcss_list = kenwood42_ctcss_list,
+    .dcs_list = thd74dcs_list,
+    .preamp = { RIG_DBLST_END, },
+    .attenuator = { RIG_DBLST_END, },
+    .max_rit = Hz(0),
+    .max_xit = Hz(0),
+    .max_ifshift = Hz(0),
+    .vfo_ops = THD75_VFO_OP,
+    .targetable_vfo = RIG_TARGETABLE_FREQ | RIG_TARGETABLE_LEVEL,
+    .transceive = RIG_TRN_OFF,
+    .bank_qty = 0,
+    .chan_desc_sz = 0,
+    .chan_list =
+    {
+        { 0, 999, RIG_MTYPE_MEM, {THD75_CHANNEL_CAPS}},
         RIG_CHAN_END,
     },
-    .rx_range_list1 =  { RIG_FRNG_END, },    /* FIXME: enter region 1 setting */
-    .tx_range_list1 =  { RIG_FRNG_END, },
-    .rx_range_list2 =  {
-        {MHz(118), MHz(174), THD74_MODES, -1, -1, THD74_VFO},
-        {MHz(320), MHz(524), THD74_MODES, -1, -1, THD74_VFO},
+    .rx_range_list1 =
+    {
+        {MHz(136), MHz(174), THD75_BAND_A_MODES, -1, -1, RIG_VFO_A},
+        {MHz(410), MHz(470), THD75_BAND_A_MODES, -1, -1, RIG_VFO_A},
+        {kHz(100), MHz(76), THD75_BAND_B_MODES, -1, -1, RIG_VFO_B},
+        {MHz(76), MHz(108), RIG_MODE_WFM, -1, -1, RIG_VFO_B},
+        {MHz(108), MHz(524), THD75_BAND_B_MODES, -1, -1, RIG_VFO_B},
         RIG_FRNG_END,
-    }, /* rx range */
-    .tx_range_list2 =  {
-        {MHz(144), MHz(148), THD74_MODES_TX, W(0.05), W(5), THD74_VFO},
-        {MHz(430), MHz(440), THD74_MODES_TX, W(0.05), W(5), THD74_VFO},
+    },
+    .tx_range_list1 =
+    {
+        {MHz(144), MHz(146), THD75_MODES_TX, W(0.05), W(5), RIG_VFO_A},
+        {MHz(430), MHz(440), THD75_MODES_TX, W(0.05), W(5), RIG_VFO_A},
         RIG_FRNG_END,
-    }, /* tx range */
+    },
+    .rx_range_list2 =
+    {
+        {MHz(136), MHz(174), THD75_BAND_A_MODES, -1, -1, RIG_VFO_A},
+        {MHz(216), MHz(260), THD75_BAND_A_MODES, -1, -1, RIG_VFO_A},
+        {MHz(410), MHz(470), THD75_BAND_A_MODES, -1, -1, RIG_VFO_A},
+        {kHz(100), MHz(76), THD75_BAND_B_MODES, -1, -1, RIG_VFO_B},
+        {MHz(76), MHz(108), RIG_MODE_WFM, -1, -1, RIG_VFO_B},
+        {MHz(108), MHz(524), THD75_BAND_B_MODES, -1, -1, RIG_VFO_B},
+        RIG_FRNG_END,
+    },
+    .tx_range_list2 =
+    {
+        {MHz(144), MHz(148), THD75_MODES_TX, W(0.05), W(5), RIG_VFO_A},
+        {MHz(222), MHz(225), THD75_MODES_TX, W(0.05), W(5), RIG_VFO_A},
+        {MHz(430), MHz(450), THD75_MODES_TX, W(0.05), W(5), RIG_VFO_A},
+        RIG_FRNG_END,
+    },
 
-    .tuning_steps =  {
-        {THD74_MODES, kHz(5)},
-        {THD74_MODES, kHz(6.25)},
-        /* kHz(8.33)  ?? */
-        {THD74_MODES, kHz(10)},
-        {THD74_MODES, kHz(12.5)},
-        {THD74_MODES, kHz(15)},
-        {THD74_MODES, kHz(20)},
-        {THD74_MODES, kHz(25)},
-        {THD74_MODES, kHz(30)},
-        {THD74_MODES, kHz(50)},
-        {THD74_MODES, kHz(100)},
+    .tuning_steps =
+    {
+        {THD75_BAND_B_MODES, Hz(20)},
+        {THD75_BAND_B_MODES, Hz(100)},
+        {THD75_BAND_B_MODES, Hz(500)},
+        {THD75_BAND_B_MODES, kHz(1)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, kHz(5)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, kHz(6.25)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, Hz(8330)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, kHz(9)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, kHz(10)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, kHz(12.5)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, kHz(15)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, kHz(20)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, kHz(25)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, kHz(30)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, kHz(50)},
+        {THD75_BAND_A_MODES | THD75_BAND_B_MODES, kHz(100)},
         RIG_TS_END,
     },
-    /* mode/filter list, remember: order matters! */
-    .filters =  {
+    .filters =
+    {
         {RIG_MODE_FM, kHz(14)},
         {RIG_MODE_FMN, kHz(7)},
+        {RIG_MODE_DSTAR, kHz(6)},
         {RIG_MODE_AM, kHz(9)},
+        {RIG_MODE_LSB | RIG_MODE_USB, Hz(2700)},
+        {RIG_MODE_CW | RIG_MODE_CWR, Hz(500)},
+        {RIG_MODE_WFM, kHz(150)},
         RIG_FLT_END,
     },
-    .priv = (void *)& thd74_priv_caps,
+    .priv = (void *)&thd75_priv_caps,
 
     .rig_init = kenwood_init,
     .rig_cleanup = kenwood_cleanup,
     .rig_open = kenwood_open,
-    .set_freq = thd74_set_freq,
-    .get_freq = thd74_get_freq,
-    .set_mode = thd74_set_mode,
-    .get_mode = thd74_get_mode,
-    .set_vfo =  thd74_set_vfo,
-    .get_vfo =  thd74_get_vfo,
-    .set_ptt = thd74_set_ptt,
-    .set_rptr_shift = thd74_set_rptr_shft,
-    .get_rptr_shift = thd74_get_rptr_shft,
-    .set_rptr_offs = thd74_set_rptr_offs,
-    .get_rptr_offs = thd74_get_rptr_offs,
-    .set_ts =    thd74_set_ts,
-    .get_ts =    thd74_get_ts,
-    .set_ctcss_tone =  thd74_set_ctcss_tone,
-    .get_ctcss_tone =  thd74_get_ctcss_tone,
-    .set_dcs_code = thd74_set_dcs_code,
-    .get_dcs_code = thd74_get_dcs_code,
-    .set_ctcss_sql = thd74_set_ctcss_sql,
-    .get_ctcss_sql = thd74_get_ctcss_sql, .set_level = thd74_set_level,
-    .get_level = thd74_get_level,
-    .set_func = thd74_set_func,
-    .get_func = thd74_get_func,
-    .set_parm = thd74_set_parm,
-    .get_parm = thd74_get_parm,
-    .set_mem  = thd74_set_mem,
-    .get_mem  = thd74_get_mem,
-    .set_channel = thd74_set_channel,
-    .get_channel = thd74_get_channel,
-    .set_split_vfo = thd74_set_split_vfo,
-    .get_split_vfo = thd74_get_split_vfo,
-    .set_split_freq = thd74_set_split_freq,
-    .get_split_freq = thd74_get_split_freq,
-//.get_chan_all_cb = thd74_get_chan_all_cb, this doesn't work yet
-
-    .get_info =  th_get_info,
+    .set_freq = thd75_set_freq,
+    .get_freq = thd75_get_freq,
+    .set_mode = thd75_set_mode,
+    .get_mode = thd75_get_mode,
+    .set_vfo = thd75_set_vfo,
+    .get_vfo = thd75_get_vfo,
+    .set_ptt = thd75_set_ptt,
+    .get_dcd = thd75_get_dcd,
+    .set_rptr_shift = thd75_set_rptr_shft,
+    .get_rptr_shift = thd75_get_rptr_shft,
+    .set_rptr_offs = thd75_set_rptr_offs,
+    .get_rptr_offs = thd75_get_rptr_offs,
+    .set_ts = thd75_set_ts,
+    .get_ts = thd75_get_ts,
+    .set_ctcss_tone = thd75_set_ctcss_tone,
+    .get_ctcss_tone = thd75_get_ctcss_tone,
+    .set_dcs_code = thd75_set_dcs_code,
+    .get_dcs_code = thd75_get_dcs_code,
+    .set_ctcss_sql = thd75_set_ctcss_sql,
+    .get_ctcss_sql = thd75_get_ctcss_sql,
+    .set_level = thd75_set_level,
+    .get_level = thd75_get_level,
+    .set_func = thd75_set_func,
+    .get_func = thd75_get_func,
+    .set_clock = thd75_set_clock,
+    .get_clock = thd75_get_clock,
+    .set_mem = thd75_set_mem,
+    .get_mem = thd75_get_mem,
+    .set_channel = thd75_set_channel,
+    .get_channel = thd75_get_channel,
+    .get_info = th_get_info,
     .hamlib_check_rig_caps = HAMLIB_CHECK_RIG_CAPS
 };
