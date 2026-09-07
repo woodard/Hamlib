@@ -70,7 +70,7 @@
     .dcs_sql = 1, \
     .flags = 1
 
-static rmode_t thd75_mode_table[KENWOOD_MODE_TABLE_MAX] =
+static const rmode_t thd75_mode_table[KENWOOD_MODE_TABLE_MAX] =
 {
     [0] = RIG_MODE_FM,  /* normal, but narrow compared to broadcast */
     [1] = RIG_MODE_DSTAR,
@@ -84,7 +84,7 @@ static rmode_t thd75_mode_table[KENWOOD_MODE_TABLE_MAX] =
     [9] = RIG_MODE_CWR,
 };
 
-static pbwidth_t thd75_width_table[10] =
+static const pbwidth_t thd75_width_table[10] =
 {
     [0] = 14000,
     [1] = 6000,
@@ -98,14 +98,14 @@ static pbwidth_t thd75_width_table[10] =
     [9] = 500,
 };
 
-static rptr_shift_t thd75_rshf_table[3] =
+static const rptr_shift_t thd75_rshf_table[3] =
 {
     [0] = RIG_RPT_SHIFT_NONE,
     [1] = RIG_RPT_SHIFT_PLUS,
     [2] = RIG_RPT_SHIFT_MINUS,
 };
 
-static int thd74tuningstep_fine[4] =
+static const int thd74tuningstep_fine[4] =
 {
     [0] = 20,
     [1] = 100,
@@ -113,7 +113,7 @@ static int thd74tuningstep_fine[4] =
     [3] = 1000,
 };
 
-static int thd74tuningstep[12] =
+static const int thd74tuningstep[12] =
 {
     [0] = 5000,
     [1] = 6250,
@@ -129,7 +129,7 @@ static int thd74tuningstep[12] =
     [11] = 100000,
 };
 
-static int thd75voxdelay[7] =
+static const int thd75voxdelay[7] =
 {
     [0] = 3,
     [1] = 5,
@@ -140,7 +140,7 @@ static int thd75voxdelay[7] =
     [6] = 30
 };
 
-static float thd74sqlevel[6] =
+static const float thd74sqlevel[6] =
 {
     [0] = 0.0f,      /* open */
     [1] = 0.2f,
@@ -150,7 +150,7 @@ static float thd74sqlevel[6] =
     [5] = 1.0f
 };
 
-static tone_t thd74dcs_list[105] =
+static const tone_t thd74dcs_list[105] =
 {
     23,  25,  26,  31,  32,  36,  43,  47,
     51,  53,  54,  65,  71,  72,  73,  74,
