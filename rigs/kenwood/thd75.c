@@ -1,5 +1,5 @@
 /*
- *  Hamlib Kenwood TH-D74 backend
+ *  Hamlib Kenwood TH-D75 backend
  *  Copyright (c) 2000-2011 by Stephane Fillod
  *  Copyright (c) 2018 by Sebastian Denz, based on THD72 from Brian Lucas
  *
@@ -27,6 +27,9 @@
 #include <math.h>
 
 #include "hamlib/rig.h"
+#include <hamlib/port.h>    /* Defines struct hamlib_port for rp->timeout */
+#include "iofunc.h"        /* Provides write_block and hl_usleep prototypes */
+#include "misc.h"           /* Provides hl_usleep */
 #include "hamlib/rig_state.h"
 #include "kenwood.h"
 #include "th.h"
@@ -171,19 +174,24 @@ static struct kenwood_priv_caps thd75_priv_caps =
     .mode_table = thd75_mode_table,
 };
 
-
-
 int thd75_open(RIG *rig)
 {
-    //int ret;
-    //struct kenwood_priv_data *priv = STATE(rig)->priv;
-    // this is already done in kenwood_init
-    //strcpy(priv->verify_cmd, "ID\r");
-    //priv->verify_cmd_len = 3;
+    hamlib_port_t *rp = RIGPORT(rig);
+    rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    //ret = kenwood_transaction(rig, "", NULL, 0);
+    /* 1. Send \r to reset any partial command sitting in the radio's parser */
+    write_block(rp, (const unsigned char *)"\r", 1);
 
-    return RIG_OK;
+    /* 2. Sleep 200ms to allow the DTR connection banner ('ID TH-D75\r') 
+     *    and the reply to '\r' ('?\r') to fully transmit over USB into Linux TTY buffers.
+     */
+    hl_usleep(200 * 1000);
+
+    /* 3. Flush all buffered startup chatter from the OS serial queue */
+    rig_flush(rp);
+
+    /* 4. Proceed with standard kenwood_open() on a quiet, synchronized line */
+    return kenwood_open(rig);
 }
 
 static int thd75_set_vfo(RIG *rig, vfo_t vfo)
@@ -2368,7 +2376,7 @@ struct rig_caps thd75_caps =
     .serial_parity = RIG_PARITY_NONE,
     .serial_handshake = RIG_HANDSHAKE_NONE,
     .write_delay = 0,
-    .post_write_delay = 0,
+    .post_write_delay = 20,
     .timeout = 500,
     .retry = 3,
 
@@ -2492,7 +2500,7 @@ struct rig_caps thd75_caps =
 
     .rig_init = kenwood_init,
     .rig_cleanup = kenwood_cleanup,
-    .rig_open = kenwood_open,
+    .rig_open = thd75_open,
     .set_freq = thd75_set_freq,
     .get_freq = thd75_get_freq,
     .set_mode = thd75_set_mode,
