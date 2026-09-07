@@ -186,33 +186,25 @@ int thd75_open(RIG *rig)
     return RIG_OK;
 }
 
-
-
 static int thd75_set_vfo(RIG *rig, vfo_t vfo)
 {
     const char *cmd;
+    char reply[32];
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    switch (vfo)
-    {
+    switch (vfo) {
     case RIG_VFO_A:
     case RIG_VFO_VFO:
-    case RIG_VFO_MAIN:
-        cmd = "BC 0";
-        break;
-
-    case RIG_VFO_B:
-        cmd = "BC 1";
-        break;
-
+    case RIG_VFO_MAIN: cmd = "BC 0"; break;
+    case RIG_VFO_B:    cmd = "BC 1"; break;
     default:
-        rig_debug(RIG_DEBUG_ERR, "%s: Unsupported VFO: %s\n", __func__,
-                  rig_strvfo(vfo));
+        rig_debug(RIG_DEBUG_ERR, "%s: Unsupported VFO: %s\n", __func__, rig_strvfo(vfo));
         return -RIG_ENTARGET;
     }
 
-    return kenwood_simple_transaction(rig, cmd, 4);
+    // Use kenwood_transaction to drain the echo
+    return kenwood_transaction(rig, cmd, reply, sizeof(reply));
 }
 
 static int thd75_get_vfo(RIG *rig, vfo_t *vfo)
@@ -468,30 +460,21 @@ static int thd75_get_ts(RIG *rig, vfo_t vfo, shortfreq_t *ts)
 static int thd75_set_freq(RIG *rig, vfo_t vfo, freq_t freq)
 {
     struct kenwood_priv_data *priv = STATE(rig)->priv;
-    char band, cmd[32];
+    char band, cmd[32], reply[64];
     int retval;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    if (priv->split == RIG_SPLIT_ON)
-    {
-        vfo = RIG_VFO_B;
-    }
-
+    if (priv->split == RIG_SPLIT_ON) vfo = RIG_VFO_B;
     retval = thd75_vfoc(rig, vfo, &band);
-    if (retval != RIG_OK)
-    {
-        return retval;
-    }
+    if (retval != RIG_OK) return retval;
 
-    if (freq < 0.0 || freq > 9999999999.0)
-    {
-        return -RIG_EINVAL;
-    }
+    if (freq < 0.0 || freq > 9999999999.0) return -RIG_EINVAL;
 
-    // Bypass FO record pushing and use direct FQ CAT command
     SNPRINTF(cmd, sizeof(cmd), "FQ %c,%010" PRIu64, band, (uint64_t)llround(freq));
-    return kenwood_simple_transaction(rig, cmd, strlen(cmd));
+    
+    // Use kenwood_transaction instead of simple_transaction to drain the echo
+    return kenwood_transaction(rig, cmd, reply, sizeof(reply));
 }
 
 static int thd75_get_freq(RIG *rig, vfo_t vfo, freq_t *freq)
@@ -991,23 +974,18 @@ static int thd75_get_ctcss_sql(RIG *rig, vfo_t vfo, tone_t *tone)
 int thd75_set_ptt(RIG *rig, vfo_t vfo, ptt_t ptt)
 {
     const char *ptt_cmd;
+    char reply[32];
 
     rig_debug(RIG_DEBUG_VERBOSE, "%s called\n", __func__);
 
-    switch (ptt)
-    {
-    case RIG_PTT_ON:
-        ptt_cmd = "TX";
-        return kenwood_simple_transaction(rig, ptt_cmd, 4);
-        break;
-
-    case RIG_PTT_OFF:
-        ptt_cmd = "RX";
-        return kenwood_simple_transaction(rig, ptt_cmd, 2);
-        break;
-
+    switch (ptt) {
+    case RIG_PTT_ON:  ptt_cmd = "TX"; break;
+    case RIG_PTT_OFF: ptt_cmd = "RX"; break;
     default: return -RIG_EINVAL;
     }
+    
+    // Use kenwood_transaction to drain the echo
+    return kenwood_transaction(rig, ptt_cmd, reply, sizeof(reply));
 }
 
 static int thd75_parse_band_digit(const char *reply, const char *command,
