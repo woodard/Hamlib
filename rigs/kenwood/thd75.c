@@ -525,14 +525,14 @@ static int thd75_get_freq(RIG *rig, vfo_t vfo, freq_t *freq)
 // setting the mode via FO leads to response 'N.' from the handset
 int thd75_set_mode(RIG *rig, vfo_t vfo, rmode_t mode, pbwidth_t width)
 {
-    char mdbuf[8], replybuf[8], v = 0;
+    char mdbuf[8], replybuf[8], band_char = 0;
     int kmode = 0, retval = 0;
     const struct kenwood_priv_caps *priv = (const struct kenwood_priv_caps *)
                                            rig->caps->priv;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    retval = thd75_vfoc(rig, vfo, &v);
+    retval = thd75_vfoc(rig, vfo, &band_char);
 
     if (retval != RIG_OK)
     {
@@ -583,7 +583,7 @@ int thd75_set_mode(RIG *rig, vfo_t vfo, rmode_t mode, pbwidth_t width)
         }
     }
 
-    SNPRINTF(mdbuf, sizeof(mdbuf), "MD %c,%c", v, kmode);
+    SNPRINTF(mdbuf, sizeof(mdbuf), "MD %c,%c", band_char, kmode);
     rig_debug(RIG_DEBUG_TRACE, "%s: mdbuf: %s\n", __func__, mdbuf);
 
     retval = kenwood_transaction(rig, mdbuf, replybuf, 7);
@@ -1145,7 +1145,7 @@ static int thd75_set_level(RIG *rig, vfo_t vfo, setting_t level, value_t val)
 
 static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
 {
-    int retval = 0, l = 0;
+    int retval = 0, parsed_value = 0;
     char c = 0, cmd[10], buf[128];
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
@@ -1168,7 +1168,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        retval = thd75_parse_band_digit(buf, "PC", c, 3, &l);
+        retval = thd75_parse_band_digit(buf, "PC", c, 3, &parsed_value);
 
         if (retval != RIG_OK)
         {
@@ -1176,7 +1176,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        switch (l)
+        switch (parsed_value)
         {
         case 0: val->f = 1.00f; break;   /* 5.0 W */
 
@@ -1197,7 +1197,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        retval = thd75_parse_global_digit(buf, "VG", 9, &l);
+        retval = thd75_parse_global_digit(buf, "VG", 9, &parsed_value);
 
         if (retval != RIG_OK)
         {
@@ -1205,7 +1205,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        val->f = (float)l / 9.0f;
+        val->f = (float)parsed_value / 9.0f;
         break;
 
     case RIG_LEVEL_VOXDELAY:
@@ -1216,7 +1216,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        retval = thd75_parse_global_digit(buf, "VD", 6, &l);
+        retval = thd75_parse_global_digit(buf, "VD", 6, &parsed_value);
 
         if (retval != RIG_OK)
         {
@@ -1224,7 +1224,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        val->i = thd75voxdelay[l];
+        val->i = thd75voxdelay[parsed_value];
         break;
 
     case RIG_LEVEL_AF:
@@ -1235,7 +1235,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        retval = thd75_parse_audio_gain(buf, &l);
+        retval = thd75_parse_audio_gain(buf, &parsed_value);
 
         if (retval != RIG_OK)
         {
@@ -1243,7 +1243,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        val->f = (float)l / 200.0f;
+        val->f = (float)parsed_value / 200.0f;
         break;
 
     case RIG_LEVEL_RAWSTR:
@@ -1255,7 +1255,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        retval = thd75_parse_band_digit(buf, "SM", c, 5, &l);
+        retval = thd75_parse_band_digit(buf, "SM", c, 5, &parsed_value);
 
         if (retval != RIG_OK)
         {
@@ -1263,7 +1263,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        val->i = l;
+        val->i = parsed_value;
         break;
 
     case RIG_LEVEL_SQL:
@@ -1275,7 +1275,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        retval = thd75_parse_band_digit(buf, "SQ", c, 5, &l);
+        retval = thd75_parse_band_digit(buf, "SQ", c, 5, &parsed_value);
 
         if (retval != RIG_OK)
         {
@@ -1283,7 +1283,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        val->f = thd74sqlevel[l];
+        val->f = thd74sqlevel[parsed_value];
         break;
 
     case RIG_LEVEL_ATT:
@@ -1295,7 +1295,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        retval = thd75_parse_band_digit(buf, "RA", c, 1, &l);
+        retval = thd75_parse_band_digit(buf, "RA", c, 1, &parsed_value);
 
         if (retval != RIG_OK)
         {
@@ -1303,7 +1303,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        val->i = l;
+        val->i = parsed_value;
         break;
 
     default:
