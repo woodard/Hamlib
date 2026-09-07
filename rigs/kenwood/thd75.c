@@ -142,12 +142,12 @@ static int thd75voxdelay[7] =
 
 static float thd74sqlevel[6] =
 {
-    [0] = 0.0,      /* open */
-    [1] = 0.2,
-    [2] = 0.4,
-    [3] = 0.6,
-    [4] = 0.8,
-    [5] = 1.0
+    [0] = 0.0f,      /* open */
+    [1] = 0.2f,
+    [2] = 0.4f,
+    [3] = 0.6f,
+    [4] = 0.8f,
+    [5] = 1.0f
 };
 
 static tone_t thd74dcs_list[105] =
@@ -1178,13 +1178,13 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
 
         switch (l)
         {
-        case 0: val->f = 1.00; break;   /* 5.0 W */
+        case 0: val->f = 1.00f; break;   /* 5.0 W */
 
-        case 1: val->f = 0.40; break;   /* 2.0 W */
+        case 1: val->f = 0.40f; break;   /* 2.0 W */
 
-        case 2: val->f = 0.1; break;    /* 500 mW */
+        case 2: val->f = 0.1f; break;    /* 500 mW */
 
-        case 3: val->f = 0.01; break;   /* 50 mW */
+        case 3: val->f = 0.01f; break;   /* 50 mW */
         }
 
         break;
@@ -1205,7 +1205,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        val->f = l / 9.0f;
+        val->f = (float)l / 9.0f;
         break;
 
     case RIG_LEVEL_VOXDELAY:
@@ -1243,7 +1243,7 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
             return retval;
         }
 
-        val->f = l / 200.0f;
+        val->f = (float)l / 200.0f;
         break;
 
     case RIG_LEVEL_RAWSTR:
