@@ -54,6 +54,12 @@
 
 #define THD75_VFO (RIG_VFO_A|RIG_VFO_B)
 
+
+/* Constants for protocol-specific values */
+#define THD75_MAX_CHANNEL 999
+#define THD75_MAX_DCS_CODE 104
+#define THD75_MAX_CTCSS_CODE 42
+
 #define THD75_CHANNEL_CAPS \
     .freq = 1, \
     .tx_freq = 1, \
@@ -347,7 +353,7 @@ static int thd75_pull_me(RIG *rig, int channel,
     char command[16], reply[THD7X_COMMAND_BUFSIZE];
     int retval = 0;
 
-    if (channel < 0 || channel > 999)
+    if (channel < 0 || channel > THD75_MAX_CHANNEL)
     {
         return -RIG_EINVAL;
     }
@@ -408,7 +414,7 @@ static int thd75_erase_me(RIG *rig, int channel)
     char command[16], expected[16], reply[THD7X_COMMAND_BUFSIZE];
     int retval = 0;
 
-    if (channel < 0 || channel > 999)
+    if (channel < 0 || channel > THD75_MAX_CHANNEL)
     {
         return -RIG_EINVAL;
     }
@@ -786,7 +792,7 @@ static int thd75_set_ctcss_tone(RIG *rig, vfo_t vfo, tone_t tone)
 
     if (tone != 0)
     {
-        for (tinx = 0; tinx < 42; tinx++)
+        for (tinx = 0; tinx < THD75_MAX_CTCSS_CODE; tinx++)
         {
             if (tone == kenwood42_ctcss_list[tinx])
             {
@@ -854,7 +860,7 @@ static int thd75_set_dcs_code(RIG *rig, vfo_t vfo, tone_t code)
 
     if (code != 0)
     {
-        for (cinx = 0; cinx < 104; cinx++)
+        for (cinx = 0; cinx < THD75_MAX_DCS_CODE; cinx++)
         {
             if (code == thd74dcs_list[cinx])
             {
@@ -922,7 +928,7 @@ static int thd75_set_ctcss_sql(RIG *rig, vfo_t vfo, tone_t tone)
 
     if (tone != 0)
     {
-        for (tinx = 0; tinx < 42; tinx++)
+        for (tinx = 0; tinx < THD75_MAX_CTCSS_CODE; tinx++)
         {
             if (tone == kenwood42_ctcss_list[tinx])
             {
@@ -1617,7 +1623,7 @@ static int thd75_set_mem(RIG *rig, vfo_t vfo, int ch)
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
-    if (ch < 0 || ch > 999)
+    if (ch < 0 || ch > THD75_MAX_CHANNEL)
     {
         return -RIG_EINVAL;
     }
@@ -1659,7 +1665,7 @@ static int thd75_get_mem(RIG *rig, vfo_t vfo, int *ch)
     retval = sscanf(buf, "MR %d,%d%n", &parsed_band, ch, &consumed);
 
     if (retval != 2 || buf[consumed] != '\0' || parsed_band != c - '0'
-            || *ch < 0 || *ch > 999)
+            || *ch < 0 || *ch > THD75_MAX_CHANNEL)
     {
         rig_debug(RIG_DEBUG_ERR, "%s: Unexpected reply '%s'\n", __func__, buf);
         return -RIG_EPROTO;
@@ -1787,13 +1793,13 @@ static int thd75_channel_tones_to_me(const channel_t *chan,
 {
     int tone_index = 0, ctcss_index = 0, dcs_code_index = 0, dcs_sql_index = 0;
 
-    if (thd75_tone_index(chan->ctcss_tone, kenwood42_ctcss_list, 42,
+    if (thd75_tone_index(chan->ctcss_tone, kenwood42_ctcss_list, THD75_MAX_CTCSS_CODE,
                          &tone_index) != RIG_OK
-            || thd75_tone_index(chan->ctcss_sql, kenwood42_ctcss_list, 42,
+            || thd75_tone_index(chan->ctcss_sql, kenwood42_ctcss_list, THD75_MAX_CTCSS_CODE,
                                 &ctcss_index) != RIG_OK
-            || thd75_tone_index(chan->dcs_code, thd74dcs_list, 104,
+            || thd75_tone_index(chan->dcs_code, thd74dcs_list, THD75_MAX_DCS_CODE,
                                 &dcs_code_index) != RIG_OK
-            || thd75_tone_index(chan->dcs_sql, thd74dcs_list, 104,
+            || thd75_tone_index(chan->dcs_sql, thd74dcs_list, THD75_MAX_DCS_CODE,
                                 &dcs_sql_index) != RIG_OK)
     {
         return -RIG_EINVAL;
@@ -1882,7 +1888,7 @@ static int thd75_set_channel(RIG *rig, vfo_t vfo, const channel_t *chan)
     }
 
     if (chan == NULL || chan->vfo != RIG_VFO_MEM
-            || chan->channel_num < 0 || chan->channel_num > 999)
+            || chan->channel_num < 0 || chan->channel_num > THD75_MAX_CHANNEL)
     {
         return -RIG_EINVAL;
     }
