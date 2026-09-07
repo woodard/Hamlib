@@ -1,0 +1,42 @@
+# Clang-Tidy configuration for Hamlib C project
+# This configuration balances code quality with the realities of C-based radio control code
+
+---
+# Checks to run - enabled checks relevant to C projects
+Checks: >
+  bugprone-*,
+  clang-analyzer-*,
+  performance-*,
+  readability-*,
+  -readability-braces-around-statements,
+  -readability-function-size,
+  -readability-identifier-naming,
+  cppcoreguidelines-*,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-loop-convert
+
+# Treat warnings as errors (can be disabled for incremental adoption)
+WarningsAsErrors: ''
+
+# Header filter - apply to all headers
+HeaderFilterRegex: '.*'
+
+# Check options for specific checks
+CheckOptions:
+  # Enable const correctness checks
+  - key: readability-const-return-type.IgnoreExpressionsWithUndeclaredVariables
+    value: true
+  
+  # Google style naming (can be adjusted for Hamlib's style)
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  
+  - key: readability-identifier-naming.ConstantCase
+    value: UPPER_CASE
+  
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case

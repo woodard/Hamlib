@@ -196,7 +196,7 @@ int thd75_open(RIG *rig)
 
 static int thd75_set_vfo(RIG *rig, vfo_t vfo)
 {
-    const char *cmd;
+    const char *cmd = NULL;
     char reply[32];
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
@@ -217,9 +217,9 @@ static int thd75_set_vfo(RIG *rig, vfo_t vfo)
 
 static int thd75_get_vfo(RIG *rig, vfo_t *vfo)
 {
-    int retval;
-    char c, buf[10];
-    size_t length;
+    int retval = 0;
+    char c = 0, buf[10];
+    size_t length = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -280,8 +280,8 @@ static int thd75_vfoc(RIG *rig, vfo_t vfo, char *vfoc)
 static int thd75_pull_fo(RIG *rig, vfo_t vfo,
                          struct thd7x_fo_record *record)
 {
-    char band, cmd[8], reply[THD7X_COMMAND_BUFSIZE];
-    int retval;
+    char band = 0, cmd[8], reply[THD7X_COMMAND_BUFSIZE];
+    int retval = RIG_OK;
 
     retval = thd75_vfoc(rig, vfo, &band);
 
@@ -313,7 +313,7 @@ static int thd75_push_fo(RIG *rig, struct thd7x_fo_record *record)
 {
     struct thd7x_fo_record acknowledged;
     char command[THD7X_COMMAND_BUFSIZE], reply[THD7X_COMMAND_BUFSIZE];
-    int retval;
+    int retval = 0;
 
     retval = thd7x_serialize_fo(record, command, sizeof(command), NULL);
 
@@ -345,7 +345,7 @@ static int thd75_pull_me(RIG *rig, int channel,
                          struct thd7x_me_record *record)
 {
     char command[16], reply[THD7X_COMMAND_BUFSIZE];
-    int retval;
+    int retval = 0;
 
     if (channel < 0 || channel > 999)
     {
@@ -375,7 +375,7 @@ static int thd75_push_me(RIG *rig, const struct thd7x_me_record *record)
 {
     struct thd7x_me_record acknowledged;
     char command[THD7X_COMMAND_BUFSIZE], reply[THD7X_COMMAND_BUFSIZE];
-    int retval;
+    int retval = 0;
 
     retval = thd7x_serialize_me(record, command, sizeof(command), NULL);
 
@@ -406,7 +406,7 @@ static int thd75_erase_me(RIG *rig, int channel)
 {
     struct thd7x_me_record record;
     char command[16], expected[16], reply[THD7X_COMMAND_BUFSIZE];
-    int retval;
+    int retval = 0;
 
     if (channel < 0 || channel > 999)
     {
@@ -451,7 +451,7 @@ static int thd75_record_ts(const struct thd7x_fo_record *record,
 static int thd75_get_ts(RIG *rig, vfo_t vfo, shortfreq_t *ts)
 {
     struct thd7x_fo_record record;
-    int retval;
+    int retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -468,8 +468,8 @@ static int thd75_get_ts(RIG *rig, vfo_t vfo, shortfreq_t *ts)
 static int thd75_set_freq(RIG *rig, vfo_t vfo, freq_t freq)
 {
     struct kenwood_priv_data *priv = STATE(rig)->priv;
-    char band, cmd[32], reply[64];
-    int retval;
+    char band = 0, cmd[32], reply[64];
+    int retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -488,8 +488,8 @@ static int thd75_set_freq(RIG *rig, vfo_t vfo, freq_t freq)
 static int thd75_get_freq(RIG *rig, vfo_t vfo, freq_t *freq)
 {
     struct kenwood_priv_data *priv = STATE(rig)->priv;
-    char band, cmd[16], reply[64];
-    int retval;
+    char band = 0, cmd[16], reply[64];
+    int retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -525,8 +525,8 @@ static int thd75_get_freq(RIG *rig, vfo_t vfo, freq_t *freq)
 // setting the mode via FO leads to response 'N.' from the handset
 int thd75_set_mode(RIG *rig, vfo_t vfo, rmode_t mode, pbwidth_t width)
 {
-    char mdbuf[8], replybuf[8], v;
-    int kmode, retval;
+    char mdbuf[8], replybuf[8], v = 0;
+    int kmode = 0, retval = 0;
     const struct kenwood_priv_caps *priv = (const struct kenwood_priv_caps *)
                                            rig->caps->priv;
 
@@ -599,8 +599,8 @@ int thd75_set_mode(RIG *rig, vfo_t vfo, rmode_t mode, pbwidth_t width)
 
 static int thd75_get_mode(RIG *rig, vfo_t vfo, rmode_t *mode, pbwidth_t *width)
 {
-    char band, command[8], reply[8];
-    int consumed, parsed_band, parsed_mode, retval;
+    char band = 0, command[8], reply[8];
+    int consumed = 0, parsed_band = 0, parsed_mode = 0, retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -638,7 +638,7 @@ static int thd75_get_mode(RIG *rig, vfo_t vfo, rmode_t *mode, pbwidth_t *width)
 static int thd75_set_rptr_shft(RIG *rig, vfo_t vfo, rptr_shift_t rptr_shift)
 {
     struct thd7x_fo_record record;
-    int retval;
+    int retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -667,7 +667,7 @@ static int thd75_set_rptr_shft(RIG *rig, vfo_t vfo, rptr_shift_t rptr_shift)
 static int thd75_get_rptr_shft(RIG *rig, vfo_t vfo, rptr_shift_t *rptr_shift)
 {
     struct thd7x_fo_record record;
-    int retval;
+    int retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -687,7 +687,7 @@ static int thd75_get_rptr_shft(RIG *rig, vfo_t vfo, rptr_shift_t *rptr_shift)
 static int thd75_set_rptr_offs(RIG *rig, vfo_t vfo, shortfreq_t offs)
 {
     struct thd7x_fo_record record;
-    int retval;
+    int retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -710,7 +710,7 @@ static int thd75_set_rptr_offs(RIG *rig, vfo_t vfo, shortfreq_t offs)
 static int thd75_get_rptr_offs(RIG *rig, vfo_t vfo, shortfreq_t *offs)
 {
     struct thd7x_fo_record record;
-    int retval;
+    int retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -733,8 +733,8 @@ static int thd75_get_rptr_offs(RIG *rig, vfo_t vfo, shortfreq_t *offs)
 static int thd75_set_ts(RIG *rig, vfo_t vfo, shortfreq_t ts)
 {
     struct thd7x_fo_record record;
-    int retval;
-    int tsinx;
+    int retval = 0;
+    int tsinx = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -778,7 +778,7 @@ static int thd75_set_ts(RIG *rig, vfo_t vfo, shortfreq_t ts)
 static int thd75_set_ctcss_tone(RIG *rig, vfo_t vfo, tone_t tone)
 {
     struct thd7x_fo_record record;
-    int retval, tinx;
+    int retval = 0, tinx = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -820,7 +820,7 @@ static int thd75_set_ctcss_tone(RIG *rig, vfo_t vfo, tone_t tone)
 static int thd75_get_ctcss_tone(RIG *rig, vfo_t vfo, tone_t *tone)
 {
     struct thd7x_fo_record record;
-    int retval;
+    int retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -846,7 +846,7 @@ static int thd75_get_ctcss_tone(RIG *rig, vfo_t vfo, tone_t *tone)
 static int thd75_set_dcs_code(RIG *rig, vfo_t vfo, tone_t code)
 {
     struct thd7x_fo_record record;
-    int retval, cinx;
+    int retval = 0, cinx = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -888,7 +888,7 @@ static int thd75_set_dcs_code(RIG *rig, vfo_t vfo, tone_t code)
 static int thd75_get_dcs_code(RIG *rig, vfo_t vfo, tone_t *code)
 {
     struct thd7x_fo_record record;
-    int retval;
+    int retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -914,7 +914,7 @@ static int thd75_get_dcs_code(RIG *rig, vfo_t vfo, tone_t *code)
 static int thd75_set_ctcss_sql(RIG *rig, vfo_t vfo, tone_t tone)
 {
     struct thd7x_fo_record record;
-    int retval, tinx;
+    int retval = 0, tinx = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -956,7 +956,7 @@ static int thd75_set_ctcss_sql(RIG *rig, vfo_t vfo, tone_t tone)
 static int thd75_get_ctcss_sql(RIG *rig, vfo_t vfo, tone_t *tone)
 {
     struct thd7x_fo_record record;
-    int retval;
+    int retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -981,7 +981,7 @@ static int thd75_get_ctcss_sql(RIG *rig, vfo_t vfo, tone_t *tone)
 
 int thd75_set_ptt(RIG *rig, vfo_t vfo, ptt_t ptt)
 {
-    const char *ptt_cmd;
+    const char *ptt_cmd = NULL;
     char reply[32];
 
     rig_debug(RIG_DEBUG_VERBOSE, "%s called\n", __func__);
@@ -1061,8 +1061,8 @@ static int thd75_nearest_vox_delay(int tenths)
 
 static int thd75_set_level(RIG *rig, vfo_t vfo, setting_t level, value_t val)
 {
-    int retval, lvl;
-    char c, lvlc, cmd[11];
+    int retval = 0, lvl = 0;
+    char c = 0, lvlc = 0, cmd[11];
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
     rig_debug(RIG_DEBUG_TRACE, "%s: level: %s\n", __func__, rig_strlevel(level));
@@ -1145,8 +1145,8 @@ static int thd75_set_level(RIG *rig, vfo_t vfo, setting_t level, value_t val)
 
 static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
 {
-    int retval, l;
-    char c, cmd[10], buf[128];
+    int retval = 0, l = 0;
+    char c = 0, cmd[10], buf[128];
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -1317,8 +1317,8 @@ static int thd75_get_level(RIG *rig, vfo_t vfo, setting_t level, value_t *val)
 
 static int thd75_get_dcd(RIG *rig, vfo_t vfo, dcd_t *dcd)
 {
-    char band, command[8], reply[16];
-    int retval, busy;
+    char band = 0, command[8], reply[16];
+    int retval = 0, busy = 0;
 
     retval = thd75_vfoc(rig, vfo, &band);
 
@@ -1349,56 +1349,106 @@ static int thd75_get_dcd(RIG *rig, vfo_t vfo, dcd_t *dcd)
 
 static int thd75_set_func(RIG *rig, vfo_t vfo, setting_t func, int status)
 {
-    char command[5], reply[16];
-    int retval;
+    struct thd7x_fo_record record;
+    int retval = 0;
 
-    if (func != RIG_FUNC_VOX)
-    {
-        return thd75_set_func(rig, vfo, func, status);
-    }
+    rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
     if (status != 0 && status != 1)
     {
         return -RIG_EINVAL;
     }
 
-    SNPRINTF(command, sizeof(command), "VX %d", status);
-    retval = kenwood_transaction(rig, command, reply, sizeof(reply));
+    if (func == RIG_FUNC_VOX)
+    {
+        char command[5], reply[16];
+        SNPRINTF(command, sizeof(command), "VX %d", status);
+        retval = kenwood_transaction(rig, command, reply, sizeof(reply));
+
+        if (retval != RIG_OK)
+        {
+            return retval;
+        }
+
+        return strcmp(command, reply) == 0 ? RIG_OK : -RIG_EPROTO;
+    }
+
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
         return retval;
     }
 
-    return strcmp(command, reply) == 0 ? RIG_OK : -RIG_EPROTO;
+    switch (func)
+    {
+    case RIG_FUNC_TONE:
+        record.tone_enabled = (uint8_t)status;
+        break;
+
+    case RIG_FUNC_TSQL:
+        record.ctcss_enabled = (uint8_t)status;
+        break;
+
+    default:
+        return -RIG_EINVAL;
+    }
+
+    return thd75_push_fo(rig, &record);
 }
 
 static int thd75_get_func(RIG *rig, vfo_t vfo, setting_t func, int *status)
 {
-    char reply[16];
-    int retval, value;
+    struct thd7x_fo_record record;
+    int retval = 0;
 
-    if (func != RIG_FUNC_VOX)
+    rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
+
+    if (func == RIG_FUNC_VOX)
     {
-        return thd75_get_func(rig, vfo, func, status);
+        char reply[16];
+        int value = 0;
+
+        retval = kenwood_transaction(rig, "VX", reply, sizeof(reply));
+
+        if (retval != RIG_OK)
+        {
+            return retval;
+        }
+
+        retval = thd75_parse_global_digit(reply, "VX", 1, &value);
+
+        if (retval != RIG_OK)
+        {
+            rig_debug(RIG_DEBUG_ERR, "%s: Unexpected reply '%s'\n", __func__, reply);
+            return retval;
+        }
+
+        *status = value;
+        return RIG_OK;
     }
 
-    retval = kenwood_transaction(rig, "VX", reply, sizeof(reply));
+    retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
     {
         return retval;
     }
 
-    retval = thd75_parse_global_digit(reply, "VX", 1, &value);
-
-    if (retval != RIG_OK)
+    switch (func)
     {
-        rig_debug(RIG_DEBUG_ERR, "%s: Unexpected reply '%s'\n", __func__, reply);
-        return retval;
+    case RIG_FUNC_TONE:
+        *status = record.tone_enabled;
+        break;
+
+    case RIG_FUNC_TSQL:
+        *status = record.ctcss_enabled;
+        break;
+
+    default:
+        return -RIG_EINVAL;
     }
 
-    *status = value;
     return RIG_OK;
 }
 
@@ -1418,7 +1468,7 @@ static int thd75_days_in_month(int year, int month)
     {
         31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     };
-    int days;
+    int days = 0;
 
     if (year < 2000 || year > 2099 || month < 1 || month > 12)
     {
@@ -1486,7 +1536,7 @@ static int thd75_set_clock(RIG *rig, int year, int month, int day, int hour,
     };
     struct thd75_clock acknowledged;
     char command[16], reply[48];
-    int retval;
+    int retval = 0;
 
     if (!isfinite(msec)
             || (msec != -1.0 && (msec < 0.0 || msec >= 1000.0))
@@ -1525,7 +1575,7 @@ static int thd75_get_clock(RIG *rig, int *year, int *month, int *day,
 {
     struct thd75_clock clock;
     char reply[48];
-    int retval;
+    int retval = 0;
 
     if (year == NULL || month == NULL || day == NULL || hour == NULL
             || minute == NULL || second == NULL || msec == NULL
@@ -1562,8 +1612,8 @@ static int thd75_get_clock(RIG *rig, int *year, int *month, int *day,
 
 static int thd75_set_mem(RIG *rig, vfo_t vfo, int ch)
 {
-    int retval;
-    char c, cmd[10];
+    int retval = 0;
+    char c = 0, cmd[10];
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -1585,8 +1635,8 @@ static int thd75_set_mem(RIG *rig, vfo_t vfo, int ch)
 
 static int thd75_get_mem(RIG *rig, vfo_t vfo, int *ch)
 {
-    int consumed, parsed_band, retval;
-    char c, cmd[10], buf[10];
+    int consumed = 0, parsed_band = 0, retval = 0;
+    char c = 0, cmd[10], buf[10];
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
 
@@ -1735,7 +1785,7 @@ static int thd75_tone_index(tone_t tone, const tone_t *tones, size_t count,
 static int thd75_channel_tones_to_me(const channel_t *chan,
                                      struct thd7x_me_record *record)
 {
-    int tone_index, ctcss_index, dcs_code_index, dcs_sql_index;
+    int tone_index = 0, ctcss_index = 0, dcs_code_index = 0, dcs_sql_index = 0;
 
     if (thd75_tone_index(chan->ctcss_tone, kenwood42_ctcss_list, 42,
                          &tone_index) != RIG_OK
@@ -1821,7 +1871,7 @@ static int thd75_channel_tones_to_me(const channel_t *chan,
 static int thd75_set_channel(RIG *rig, vfo_t vfo, const channel_t *chan)
 {
     struct thd7x_me_record record;
-    int is_new_record = 0, retval;
+    int is_new_record = 0, retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
     (void)vfo;
@@ -1845,7 +1895,6 @@ static int thd75_set_channel(RIG *rig, vfo_t vfo, const channel_t *chan)
     if (!isfinite(chan->freq)
             || chan->freq < 0.0 || chan->freq > 9999999999.0
             || chan->rptr_offs < 0
-            || chan->channel_desc[0] != '\0'
             || (chan->funcs & ~RIG_FUNC_REV) != 0
             || (chan->flags & ~RIG_CHFLAG_SKIP) != 0)
     {
@@ -1860,7 +1909,6 @@ static int thd75_set_channel(RIG *rig, vfo_t vfo, const channel_t *chan)
         record.channel = (uint16_t)chan->channel_num;
         record.tone_index = 8;
         record.ctcss_index = 8;
-        strcpy(record.urcall, "CQCQCQ");
         is_new_record = 1;
     }
     else if (retval != RIG_OK)
@@ -1871,6 +1919,17 @@ static int thd75_set_channel(RIG *rig, vfo_t vfo, const channel_t *chan)
     record.frequency_hz = (uint64_t)llround(chan->freq);
     record.reverse_enabled = (chan->funcs & RIG_FUNC_REV) != 0;
     record.lockout_enabled = (chan->flags & RIG_CHFLAG_SKIP) != 0;
+
+    /* Copy channel_desc to urcall if not empty */
+    if (chan->channel_desc[0] != '\0')
+    {
+        strncpy(record.urcall, chan->channel_desc, THD7X_URCALL_MAX);
+        record.urcall[THD7X_URCALL_MAX] = '\0';
+    }
+    else if (is_new_record)
+    {
+        strcpy(record.urcall, "CQCQCQ");
+    }
 
     retval = thd75_channel_mode_to_me(chan->mode, &record);
 
@@ -1976,7 +2035,7 @@ static int thd75_channel_mode(channel_t *chan, uint8_t mode)
 static int thd75_channel_from_fo(const struct thd7x_fo_record *record,
                                  channel_t *chan)
 {
-    int retval;
+    int retval = 0;
 
     if (record->offset_hz > (uint64_t)LONG_MAX)
     {
@@ -2001,7 +2060,16 @@ static int thd75_channel_from_fo(const struct thd7x_fo_record *record,
                         thd74tuningstep[record->rx_step];
     chan->funcs = record->reverse_enabled ? RIG_FUNC_REV : 0;
     chan->flags = RIG_CHFLAG_NONE;
-    chan->channel_desc[0] = '\0';
+
+    /* Copy urcall to channel_desc if it fits */
+    if (strlen(record->urcall) < HAMLIB_MAXCHANDESC)
+    {
+        strcpy(chan->channel_desc, record->urcall);
+    }
+    else
+    {
+        chan->channel_desc[0] = '\0';
+    }
     thd75_channel_tones(chan, record->tone_enabled, record->ctcss_enabled,
                         record->dcs_enabled, record->cross_enabled,
                         record->tone_index, record->ctcss_index,
@@ -2012,7 +2080,7 @@ static int thd75_channel_from_fo(const struct thd7x_fo_record *record,
 static int thd75_channel_from_me(const struct thd7x_me_record *record,
                                  channel_t *chan)
 {
-    int retval;
+    int retval = 0;
 
     if (record->offset_hz > (uint64_t)LONG_MAX)
     {
@@ -2033,7 +2101,16 @@ static int thd75_channel_from_me(const struct thd7x_me_record *record,
                         thd74tuningstep[record->rx_step];
     chan->funcs = record->reverse_enabled ? RIG_FUNC_REV : 0;
     chan->flags = record->lockout_enabled ? RIG_CHFLAG_SKIP : RIG_CHFLAG_NONE;
-    chan->channel_desc[0] = '\0';
+
+    /* Copy urcall to channel_desc if it fits */
+    if (strlen(record->urcall) < HAMLIB_MAXCHANDESC)
+    {
+        strcpy(chan->channel_desc, record->urcall);
+    }
+    else
+    {
+        chan->channel_desc[0] = '\0';
+    }
 
     if (record->odd_split_enabled)
     {
@@ -2063,7 +2140,7 @@ static int thd75_get_channel(RIG *rig, vfo_t vfo, channel_t *chan,
 {
     struct thd7x_fo_record fo_record;
     struct thd7x_me_record me_record;
-    int retval;
+    int retval = 0;
 
     rig_debug(RIG_DEBUG_TRACE, "%s: called\n", __func__);
     (void)read_only;
@@ -2426,7 +2503,7 @@ struct rig_caps thd75_caps =
     .targetable_vfo = RIG_TARGETABLE_FREQ | RIG_TARGETABLE_LEVEL,
     .transceive = RIG_TRN_OFF,
     .bank_qty = 0,
-    .chan_desc_sz = 0,
+    .chan_desc_sz = 16,
     .chan_list =
     {
         { 0, 999, RIG_MTYPE_MEM, {THD75_CHANNEL_CAPS}},
