@@ -27,16 +27,16 @@ CheckOptions:
   # Enable const correctness checks
   - key: readability-const-return-type.IgnoreExpressionsWithUndeclaredVariables
     value: true
-  
+
   # Google style naming (can be adjusted for Hamlib's style)
   - key: readability-identifier-naming.VariableCase
     value: lower_case
-  
+
   - key: readability-identifier-naming.ConstantCase
     value: UPPER_CASE
-  
+
   - key: readability-identifier-naming.ParameterCase
     value: lower_case
-  
+
   - key: readability-identifier-naming.FunctionCase
     value: lower_case

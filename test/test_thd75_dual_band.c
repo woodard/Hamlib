@@ -1,6 +1,6 @@
 /*
  *  Hamlib TH-D75 Dual Band (DL command) tests
- *  Copyright (c) 2025 by Goose
+ *  Copyright (c) 2026 by Ben Woodard AE6BC with the help of Goose AI
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public

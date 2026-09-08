@@ -2,6 +2,7 @@
  *  Hamlib Kenwood TH-D75 backend
  *  Copyright (c) 2000-2011 by Stephane Fillod
  *  Copyright (c) 2018 by Sebastian Denz, based on THD72 from Brian Lucas
+ *  Copyright (c) 2026 by Ben Woodard AE6BC, based on THD74 by Sebastian Denz
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Lesser General Public
@@ -188,7 +189,7 @@ int thd75_open(RIG *rig)
     /* 1. Send \r to reset any partial command sitting in the radio's parser */
     write_block(rp, (const unsigned char *)"\r", 1);
 
-    /* 2. Sleep 200ms to allow the DTR connection banner ('ID TH-D75\r') 
+    /* 2. Sleep 200ms to allow the DTR connection banner ('ID TH-D75\r')
      *    and the reply to '\r' ('?\r') to fully transmit over USB into Linux TTY buffers.
      */
     hl_usleep(200 * 1000);
@@ -486,7 +487,7 @@ static int thd75_set_freq(RIG *rig, vfo_t vfo, freq_t freq)
     if (freq < 0.0 || freq > 9999999999.0) return -RIG_EINVAL;
 
     SNPRINTF(cmd, sizeof(cmd), "FQ %c,%010" PRIu64, band, (uint64_t)llround(freq));
-    
+
     // Use kenwood_transaction instead of simple_transaction to drain the echo
     return kenwood_transaction(rig, cmd, reply, sizeof(reply));
 }
@@ -997,7 +998,7 @@ int thd75_set_ptt(RIG *rig, vfo_t vfo, ptt_t ptt)
     case RIG_PTT_OFF: ptt_cmd = "RX"; break;
     default: return -RIG_EINVAL;
     }
-    
+
     // Use kenwood_transaction to drain the echo
     return kenwood_transaction(rig, ptt_cmd, reply, sizeof(reply));
 }
