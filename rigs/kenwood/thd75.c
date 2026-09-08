@@ -42,7 +42,7 @@
 #define THD75_BAND_B_MODES (THD75_MODES)
 #define THD75_MODES_TX (RIG_MODE_FM|RIG_MODE_FMN|RIG_MODE_DSTAR)
 
-#define THD75_FUNC_ALL (RIG_FUNC_TSQL|RIG_FUNC_TONE|RIG_FUNC_VOX)
+#define THD75_FUNC_ALL (RIG_FUNC_TSQL|RIG_FUNC_TONE|RIG_FUNC_VOX|RIG_FUNC_DUAL_WATCH)
 
 #define THD75_LEVEL_ALL (RIG_LEVEL_RFPOWER|RIG_LEVEL_SQL|RIG_LEVEL_AF|\
                          RIG_LEVEL_VOXGAIN|RIG_LEVEL_VOXDELAY|\
@@ -1379,6 +1379,20 @@ static int thd75_set_func(RIG *rig, vfo_t vfo, setting_t func, int status)
         return strcmp(command, reply) == 0 ? RIG_OK : -RIG_EPROTO;
     }
 
+    if (func == RIG_FUNC_DUAL_WATCH)
+    {
+        char command[5], reply[16];
+        SNPRINTF(command, sizeof(command), "DL %d", status);
+        retval = kenwood_transaction(rig, command, reply, sizeof(reply));
+
+        if (retval != RIG_OK)
+        {
+            return retval;
+        }
+
+        return strcmp(command, reply) == 0 ? RIG_OK : -RIG_EPROTO;
+    }
+
     retval = thd75_pull_fo(rig, vfo, &record);
 
     if (retval != RIG_OK)
@@ -1423,6 +1437,30 @@ static int thd75_get_func(RIG *rig, vfo_t vfo, setting_t func, int *status)
         }
 
         retval = thd75_parse_global_digit(reply, "VX", 1, &value);
+
+        if (retval != RIG_OK)
+        {
+            rig_debug(RIG_DEBUG_ERR, "%s: Unexpected reply '%s'\n", __func__, reply);
+            return retval;
+        }
+
+        *status = value;
+        return RIG_OK;
+    }
+
+    if (func == RIG_FUNC_DUAL_WATCH)
+    {
+        char reply[16];
+        int value = 0;
+
+        retval = kenwood_transaction(rig, "DL", reply, sizeof(reply));
+
+        if (retval != RIG_OK)
+        {
+            return retval;
+        }
+
+        retval = thd75_parse_global_digit(reply, "DL", 1, &value);
 
         if (retval != RIG_OK)
         {
